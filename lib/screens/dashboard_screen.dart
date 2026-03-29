@@ -1,10 +1,217 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/expense_provider.dart';
+import '../theme/app_theme.dart';
+import '../models/expense_model.dart';
+import 'package:intl/intl.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    final provider = context.watch<ExpenseProvider>();
+    final isDark = provider.isDarkMode;
+    final textColor = isDark ? AppTheme.lightText : const Color(0xFF1A1A2E);
+    final subColor = isDark ? AppTheme.subText : Colors.grey[500]!;
+    final expenses = provider.currentMonthExpenses;
+    final now = DateTime.now();
+    final monthName = DateFormat('MMMM yyyy').format(now);
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: isDark ? AppTheme.darkBg : const Color(0xFFF5F5FA),
+        body: CustomScrollView(
+          slivers: [
+            // App Bar
+            SliverAppBar(
+              pinned: true,
+              backgroundColor: isDark
+                  ? AppTheme.darkBg
+                  : const Color(0xFFF5F5FA),
+
+              expandedHeight: 80,
+              flexibleSpace: FlexibleSpaceBar(
+                titlePadding: const .only(left: 20, bottom: 16),
+                title: Column(
+                  mainAxisAlignment: .start,
+                  mainAxisSize: .min,
+                  children: [
+                    Text(
+                      monthName,
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        color: textColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Income Button
+              actions: [
+                GestureDetector(
+                  onTap: () => _showSetIncome(context),
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 8, top: 8, bottom: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: AppTheme.safeGreen.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: AppTheme.safeGreen.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.attach_money,
+                          color: AppTheme.safeGreen,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Set Income',
+                          style: TextStyle(
+                            color: AppTheme.safeGreen,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                //Theme toggle
+                IconButton(
+                  icon: Icon(
+                    isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+                    color: isDark ? Colors.white60 : Colors.grey[600],
+                  ),
+                  onPressed: () => provider.toggleTheme(),
+                ),
+              ],
+            ),
+            // Balance card
+            SliverToBoxAdapter(child: const BalanceCard()),
+            // Recent Expense Header
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
+                child: Row(
+                  mainAxisAlignment: .spaceBetween,
+                  children: [
+                    Text(
+                      'Recent Expenses',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: textColor,
+                      ),
+                    ),
+                    Text(
+                      '${expenses.length} transactions',
+                      style: TextStyle(color: subColor, fontSize: 13),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // Expense List
+            expenses.isEmpty
+                ? SliverToBoxAdapter(child: _EmptyState(isDark: isDark))
+                : SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final exp = expenses[index];
+                      return Padding(
+                        padding: const .symmetric(horizontal: 20),
+                        child: ExpenseListItem(
+                          expense: exp,
+                          onEdit: () => _showEdit(context, exp),
+                          onDelete: () => provider.deleteExpense(exp.id),
+                        ),
+                      );
+                    }, childCount: expenses.length),
+                  ),
+            const SliverToBoxAdapter(child: SizedBox(height: 100)),
+          ],
+        ),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () => _showAddExpense(context),
+          backgroundColor: AppTheme.neonPurple,
+          foregroundColor: Colors.white,
+          icon: Icon(Icons.add_rounded),
+          label: Text(
+            "Add Expense",
+            style: TextStyle(fontWeight: FontWeight.w700),
+          ),
+          elevation: 8,
+        ),
+      ),
+    );
+  }
+
+  void _showAddExpense(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const AddExpenseSheet(),
+    );
+  }
+
+  void _showEdit(BuildContext context, Expense expense) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => AddExpenseSheet(editExpense: expense),
+    );
+  }
+
+  void _showSetIncome(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const SetIncomeSheet(),
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  final bool isDark;
+  const _EmptyState({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const .symmetric(vertical: 50),
+      child: Column(
+        children: [
+          Icon(
+            Icons.receipt_long_rounded,
+            size: 80,
+            color: isDark ? Colors.white24 : Colors.grey[300],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            "No Expenses Yet",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: isDark ? AppTheme.lightText : const Color(0xFF1A1A2E),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Tap the button below to add your first expense',
+            style: TextStyle(
+              fontSize: 14,
+              color: isDark ? AppTheme.subText : Colors.grey[400],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -3,9 +3,14 @@ import 'package:expense_tracker/theme/app_theme.dart';
 import 'package:expense_tracker/widgets/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:expense_tracker/models/expense_model.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  Hive.registerAdapter(ExpenseAdapter());
+  Hive.registerAdapter(MonthlyIncomeAdapter());
   runApp(
     ChangeNotifierProvider(
       create: (_) => ExpenseProvider()..init(),
