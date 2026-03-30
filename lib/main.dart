@@ -11,9 +11,13 @@ void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(ExpenseAdapter());
   Hive.registerAdapter(MonthlyIncomeAdapter());
+
+  final provider = ExpenseProvider();
+  await provider.init();
+
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => ExpenseProvider()..init(),
+    ChangeNotifierProvider.value(
+      value: provider,
       child: const ExpenseTrackerApp(),
     ),
   );

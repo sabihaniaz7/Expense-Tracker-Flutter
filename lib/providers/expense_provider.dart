@@ -80,4 +80,102 @@ class ExpenseProvider extends ChangeNotifier {
     if (pct >= 70) return 1;
     return 0;
   }
+
+  // Category breakdown for each month
+  Map<String, double> getCategoryBreakdown(String mKey) {
+    final expenses = getExpenseForMonth(mKey);
+    final Map<String, double> breakdown = {};
+    for (final e in expenses) {
+      breakdown[e.category] = (breakdown[e.category] ?? 0) + e.amount;
+    }
+    return breakdown;
+  }
+
+  // All Months that have data
+  List<String> get availableMonths {
+    final Set<String> months = {};
+    for (final e in _expenseBox.values) {
+      if (!e.isIncome) {
+        months.add(monthKey(e.date));
+      }
+    }
+    for (final i in _incomeBox.values) {
+      months.add(i.monthKey);
+    }
+    final list = months.toList()..sort((a, b) => b.compareTo(a));
+    return list;
+  }
+
+  // Add Expense
+  Future<void> addExpense({
+    required String title,
+    required double amount,
+    required String category,
+    DateTime? date,
+    String note = '',
+  }) async {
+    final expense = Expense(
+      id: _uuid.v4(),
+      title: title,
+      amount: amount,
+      category: category,
+      date: date ?? DateTime.now(),
+      note: note,
+      isIncome: false,
+    );
+    await _expenseBox.put(expense.id, expense);
+    notifyListeners();
+  }
+
+  // Edit Expense
+  Future<void> editExpense({
+    required String id,
+    required String title,
+    required double amount,
+    required String category,
+    required DateTime date,
+    String note = '',
+  }) async {
+    final expense = _expenseBox.get(id);
+    if (expense != null) {
+      expense.title = title;
+      expense.amount = amount;
+      expense.category = category;
+      expense.date = date;
+      expense.note = note;
+      await expense.save();
+      notifyListeners();
+    }
+  }
+
+  // Delete Expense
+  Future<void> deleteExpense(String id) async {
+    await _expenseBox.delete(id);
+    notifyListeners();
+  }
+
+  // set monthly Income
+  Future<void> setMonthlyIncome(double amount, {String? mKey}) async {
+    final key = mKey ?? currentMonthKey;
+    final existing = _incomeBox.values.where((i) => i.monthKey == key);
+    if (existing.isNotEmpty) {
+      final item = existing.first;
+      item.amount = amount;
+      await item.save();
+    } else {
+      final income = MonthlyIncome(monthKey: key, amount: amount);
+      await _incomeBox.put(key, income);
+    }
+    notifyListeners();
+  }
+
+  // Custom Categories
+  final List<String> _customCategories = [];
+  List<String> get customCategories => _customCategories;
+
+  // Add Custom Category
+  void addCustomCategory(String name) {
+    _customCategories.add(name);
+    notifyListeners();
+  }
 }
