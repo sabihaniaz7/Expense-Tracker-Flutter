@@ -5,19 +5,25 @@ part 'expense_model.g.dart';
 @HiveType(typeId: 0)
 class Expense extends HiveObject {
   @HiveField(0)
-  final String id;
+  late String id;
+
   @HiveField(1)
-  final String title;
+  late String title;
+
   @HiveField(2)
-  final double amount;
+  late double amount;
+
   @HiveField(3)
-  final String category;
+  late String category;
+
   @HiveField(4)
-  final DateTime date;
+  late DateTime date;
+
   @HiveField(5)
-  final String note;
+  late String note;
+
   @HiveField(6)
-  final bool isIncome;
+  late bool isIncome;
 
   Expense({
     required this.id,
@@ -29,13 +35,14 @@ class Expense extends HiveObject {
     this.isIncome = false,
   });
 }
-  @HiveType(typeId: 1)
+
+@HiveType(typeId: 1)
 class MonthlyIncome extends HiveObject {
   @HiveField(0)
   late String monthKey; // "2026-02"
- 
+
   @HiveField(1)
   late double amount;
- 
+
   MonthlyIncome({required this.monthKey, required this.amount});
 }
