@@ -25,6 +25,58 @@ class ExpenseListItem extends StatelessWidget {
     return Dismissible(
       key: Key(expense.id),
       direction: DismissDirection.endToStart,
+      // confirmDismiss shows the dialog; actual delete only if confirmed
+      confirmDismiss: (_) async {
+        final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            backgroundColor: isDark ? AppTheme.darkCard : Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            title: Text(
+              'Delete Expense?',
+              style: TextStyle(
+                fontFamily: 'Syne',
+                fontWeight: FontWeight.w500,
+                fontSize: 18,
+                color: isDark ? AppTheme.lightText : const Color(0xFF1A1A2E),
+              ),
+            ),
+            content: Text(
+              '"${expense.title}" will be permanently removed.',
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? AppTheme.subText : Colors.grey[600],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(
+                    color: isDark ? AppTheme.subText : Colors.grey[500],
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: const Text(
+                  'Delete',
+                  style: TextStyle(
+                    color: AppTheme.dangerRed,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+        return confirmed ?? false;
+      },
+      onDismissed: (_) => onDelete(),
       background: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
@@ -34,9 +86,26 @@ class ExpenseListItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
         ),
 
-        child: const Icon(Icons.delete_rounded, color: AppTheme.dangerRed),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.delete_rounded,
+              color: AppTheme.dangerRed,
+              size: 22,
+            ),
+            const SizedBox(height: 2),
+            const Text(
+              'Delete',
+              style: TextStyle(
+                color: AppTheme.dangerRed,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
       ),
-      onDismissed: (_) => onDelete(),
       child: GestureDetector(
         onTap: onEdit,
         child: Container(
@@ -58,7 +127,7 @@ class ExpenseListItem extends StatelessWidget {
                 width: 46,
                 height: 46,
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.15),
+                  color: color.withValues(alpha: isDark ? 0.15 : 0.18),
                   borderRadius: .circular(12),
                 ),
                 child: Center(
