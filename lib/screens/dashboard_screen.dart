@@ -32,23 +32,14 @@ class DashboardScreen extends StatelessWidget {
               backgroundColor: isDark
                   ? AppTheme.darkBg
                   : const Color(0xFFF5F5FA),
-
-              expandedHeight: 80,
-              flexibleSpace: FlexibleSpaceBar(
-                titlePadding: const .only(left: 20, bottom: 16),
-                title: Column(
-                  mainAxisAlignment: .start,
-                  mainAxisSize: .min,
-                  children: [
-                    Text(
-                      monthName,
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w700,
-                        color: textColor,
-                      ),
-                    ),
-                  ],
+              toolbarHeight: 56,
+              titleSpacing: 20,
+              title: Text(
+                monthName,
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                  color: textColor,
                 ),
               ),
               // Income Button
@@ -56,13 +47,20 @@ class DashboardScreen extends StatelessWidget {
                 GestureDetector(
                   onTap: () => _showSetIncome(context),
                   child: Container(
-                    margin: const EdgeInsets.only(right: 8, top: 8, bottom: 8),
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    margin: const EdgeInsets.only(
+                      right: 8,
+                      top: 10,
+                      bottom: 10,
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: AppTheme.safeGreen.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: AppTheme.safeGreen.withValues(alpha: 0.3),
+                        color: AppTheme.safeGreen.withValues(alpha: 0.4),
                       ),
                     ),
                     child: Row(
@@ -77,7 +75,7 @@ class DashboardScreen extends StatelessWidget {
                           'Set Income',
                           style: TextStyle(
                             color: AppTheme.safeGreen,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w600,
                             fontSize: 12,
                           ),
                         ),
@@ -131,7 +129,12 @@ class DashboardScreen extends StatelessWidget {
                         child: ExpenseListItem(
                           expense: exp,
                           onEdit: () => _showEdit(context, exp),
-                          onDelete: () => provider.deleteExpense(exp.id),
+                          onDelete: () => _confirmDelete(
+                            context,
+                            exp.id,
+                            exp.title,
+                            provider,
+                          ),
                         ),
                       );
                     }, childCount: expenses.length),
@@ -139,16 +142,15 @@ class DashboardScreen extends StatelessWidget {
             const SliverToBoxAdapter(child: SizedBox(height: 100)),
           ],
         ),
-        floatingActionButton: FloatingActionButton.extended(
+        floatingActionButton: FloatingActionButton(
           onPressed: () => _showAddExpense(context),
           backgroundColor: AppTheme.neonPurple,
           foregroundColor: Colors.white,
-          icon: Icon(Icons.add_rounded),
-          label: Text(
-            "Add Expense",
-            style: TextStyle(fontWeight: FontWeight.w700),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
           ),
           elevation: 8,
+          child: Icon(Icons.add_rounded, size: 28),
         ),
       ),
     );
@@ -180,6 +182,63 @@ class DashboardScreen extends StatelessWidget {
       builder: (_) => const SetIncomeSheet(),
     );
   }
+
+  void _confirmDelete(
+    BuildContext context,
+    String id,
+    String title,
+    ExpenseProvider provider,
+  ) async {
+    final isDark = provider.isDarkMode;
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: isDark ? AppTheme.darkCard : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          "Delete Expense?",
+          style: TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: 18,
+            color: isDark ? AppTheme.lightText : const Color(0xFF1A1A2E),
+          ),
+        ),
+        content: Text(
+          '"$title" will be permanently removed.',
+          style: TextStyle(
+            fontSize: 14,
+            color: isDark ? AppTheme.subText : Colors.grey[600],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(
+              "Cancel",
+              style: TextStyle(
+                color: isDark ? AppTheme.subText : Colors.grey[500],
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text(
+              "Delete",
+              style: TextStyle(
+                color: AppTheme.dangerRed,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      provider.deleteExpense(id);
+    }
+  }
 }
 
 class _EmptyState extends StatelessWidget {
@@ -197,7 +256,7 @@ class _EmptyState extends StatelessWidget {
             size: 80,
             color: isDark ? Colors.white24 : Colors.grey[300],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 6),
           Text(
             "No Expenses Yet",
             style: TextStyle(
@@ -206,7 +265,7 @@ class _EmptyState extends StatelessWidget {
               color: isDark ? AppTheme.lightText : const Color(0xFF1A1A2E),
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 2),
           Text(
             'Tap the button below to add your first expense',
             style: TextStyle(
