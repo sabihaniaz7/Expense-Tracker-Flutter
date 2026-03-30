@@ -1,8 +1,12 @@
+import 'package:expense_tracker/widgets/balance_card.dart';
+import 'package:expense_tracker/widgets/expense_list_item.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/expense_provider.dart';
 import '../theme/app_theme.dart';
 import '../models/expense_model.dart';
+import '../widgets/add_expense_sheet.dart';
+import '../widgets/set_income_sheet.dart';
 import 'package:intl/intl.dart';
 
 class DashboardScreen extends StatelessWidget {
