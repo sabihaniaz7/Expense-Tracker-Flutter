@@ -77,7 +77,6 @@ class BalanceCard extends StatelessWidget {
                     fontWeight: .w500,
                   ),
                 ),
-                if (warningLevel > 0) _WarningBadge(level: warningLevel),
               ],
             ),
             const SizedBox(height: 8),
@@ -164,41 +163,58 @@ class _StatChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const .symmetric(horizontal: 14, vertical: 10),
+      padding: const .symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
         children: [
-          Text(
-            icon,
-            style: TextStyle(
-              color: color,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+          // Container(
+          //   width: 30,
+          //   height: 30,
+          //   decoration: BoxDecoration(
+          //     color: Colors.white.withValues(alpha: 0.15),
+          //     borderRadius: BorderRadius.circular(8),
+          //   ),
+          //   child: Center(
+          //     child: Text(
+          //       icon,
+          //       style: TextStyle(
+          //         color: color,
+          //         fontSize: 18,
+          //         fontWeight: FontWeight.bold,
+          //       ),
+          //     ),
+          //   ),
+          // ),
+          // const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: .start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: color.withValues(alpha: 0.7),
+                    fontSize: 11,
+                  ),
+                ),
+                const SizedBox(height: 1),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    amount,
+                    style: TextStyle(
+                      color: color,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: .start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  color: color.withValues(alpha: 0.7),
-                  fontSize: 11,
-                ),
-              ),
-              Text(
-                amount,
-                style: TextStyle(
-                  color: color,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 14,
-                ),
-              ),
-            ],
           ),
         ],
       ),
@@ -229,51 +245,6 @@ class _ProgressBar extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _WarningBadge extends StatelessWidget {
-  final int level;
-  const _WarningBadge({required this.level});
-
-  @override
-  Widget build(BuildContext context) {
-    String text;
-    Color bgColor;
-
-    switch (level) {
-      case 1:
-        text = '⚠️ Warning';
-        bgColor = Colors.yellow.withValues(alpha: 0.3);
-        break;
-      case 2:
-        text = '🔔 Alert';
-        bgColor = Colors.orange.withValues(alpha: 0.3);
-        break;
-      case 3:
-        text = '🚨 Danger';
-        bgColor = Colors.red.withValues(alpha: 0.3);
-        break;
-      default:
-        text = '';
-        bgColor = Colors.transparent;
-    }
-    return Container(
-      padding: const .symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: .circular(20),
-        border: .all(color: Colors.white30),
-      ),
-      child: Text(
-        text,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
         ),
       ),
     );
