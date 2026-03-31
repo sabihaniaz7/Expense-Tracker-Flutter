@@ -13,6 +13,7 @@ class AddExpenseSheet extends StatefulWidget {
 }
 
 class _AddExpenseSheetState extends State<AddExpenseSheet> {
+  final _formKey = GlobalKey<FormState>();
   final _titleCtrl = TextEditingController();
   final _amountCtrl = TextEditingController();
   final _noteCtrl = TextEditingController();
@@ -57,10 +58,12 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
         color: bg,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      child: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
             // Handle
             Center(
               child: Container(
@@ -85,27 +88,50 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
 
             // Amount Input
             _buildLabel('Amount', textColor),
-            _buildTextField(
-              _amountCtrl,
-              '\$ 0.00',
-              isDark,
-              textColor,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
+              _buildTextField(
+                _amountCtrl,
+                '\$ 0.00',
+                isDark,
+                textColor,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                prefixText: '\$  ',
+                fontSize: 24,
+                fontWeight: FontWeight.w500,
+                validator: (value) {
+                  final amountText = (value ?? '').trim().replaceAll(',', '');
+                  if (amountText.isEmpty) {
+                    return 'Please enter an amount';
+                  }
+
+                  final amount = double.tryParse(amountText);
+                  if (amount == null) {
+                    return 'Enter a valid numeric amount';
+                  }
+
+                  if (amount <= 0) {
+                    return 'Amount must be greater than 0';
+                  }
+
+                  return null;
+                },
               ),
-              prefixText: '\$  ',
-              fontSize: 24,
-              fontWeight: FontWeight.w500,
-            ),
             const SizedBox(height: 16),
             // Title
-            _buildLabel('Title', textColor),
-            _buildTextField(
-              _titleCtrl,
-              'What did you spend on?',
-              isDark,
-              textColor,
-            ),
+            _buildLabel('Title/Item', textColor),
+              _buildTextField(
+                _titleCtrl,
+                'Dress, Shoes, Lunch ...',
+                isDark,
+                textColor,
+                validator: (value) {
+                  if ((value ?? '').trim().isEmpty) {
+                    return 'Please enter a title';
+                  }
+                  return null;
+                },
+              ),
             const SizedBox(height: 16),
 
             // Category selector
@@ -155,9 +181,13 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                   }
                   final cat = allCategories[i];
                   final isSelected = _selectedCategory == cat;
+                  final isCustom = provider.customCategories.contains(cat);
                   final color = AppCategories.getColor(cat);
                   return GestureDetector(
                     onTap: () => setState(() => _selectedCategory = cat),
+                    onLongPress: isCustom
+                        ? () => _confirmDeleteCategory(context, cat, provider)
+                        : null,
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       margin: const EdgeInsets.only(right: 8),
@@ -320,16 +350,21 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                 ),
               ),
             ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
   void _save() {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
     final title = _titleCtrl.text.trim();
-    final amount = double.tryParse(_amountCtrl.text.replaceAll(',', '')) ?? 0;
-    if (title.isEmpty || amount <= 0) return;
+    final amount = double.parse(_amountCtrl.text.trim().replaceAll(',', ''));
+
     final provider = context.read<ExpenseProvider>();
     if (widget.editExpense != null) {
       provider.editExpense(
@@ -375,10 +410,12 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
     String? prefixText,
     double fontSize = 15,
     FontWeight fontWeight = FontWeight.w500,
+    String? Function(String?)? validator,
   }) {
-    return TextField(
+    return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
+      validator: validator,
       style: TextStyle(
         color: textColor,
         fontSize: fontSize,
@@ -440,5 +477,63 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
       'Dec',
     ];
     return months[m - 1];
+  }
+
+  Future<void> _confirmDeleteCategory(
+    BuildContext context,
+    String name,
+    ExpenseProvider provider,
+  ) async {
+    final isDark = provider.isDarkMode;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: isDark ? AppTheme.darkCard : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          'Delete Category?',
+          style: TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: 18,
+            color: isDark ? AppTheme.lightText : const Color(0xFF1A1A2E),
+          ),
+        ),
+        content: Text(
+          '"$name" will be removed from your custom categories.',
+          style: TextStyle(
+            fontSize: 14,
+            color: isDark ? AppTheme.subText : Colors.grey[600],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                color: isDark ? AppTheme.subText : Colors.grey[500],
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text(
+              'Delete',
+              style: TextStyle(
+                color: AppTheme.dangerRed,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      await provider.deleteCustomCategory(name);
+      if (_selectedCategory == name) {
+        setState(() => _selectedCategory = 'Food & Drink');
+      }
+    }
   }
 }
