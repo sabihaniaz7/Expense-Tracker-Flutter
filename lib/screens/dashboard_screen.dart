@@ -129,12 +129,7 @@ class DashboardScreen extends StatelessWidget {
                         child: ExpenseListItem(
                           expense: exp,
                           onEdit: () => _showEdit(context, exp),
-                          onDelete: () => _confirmDelete(
-                            context,
-                            exp.id,
-                            exp.title,
-                            provider,
-                          ),
+                          onDelete: () => provider.deleteExpense(exp.id),
                         ),
                       );
                     }, childCount: expenses.length),
@@ -181,63 +176,6 @@ class DashboardScreen extends StatelessWidget {
       backgroundColor: Colors.transparent,
       builder: (_) => const SetIncomeSheet(),
     );
-  }
-
-  void _confirmDelete(
-    BuildContext context,
-    String id,
-    String title,
-    ExpenseProvider provider,
-  ) async {
-    final isDark = provider.isDarkMode;
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: isDark ? AppTheme.darkCard : Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(
-          "Delete Expense?",
-          style: TextStyle(
-            fontWeight: FontWeight.w500,
-            fontSize: 18,
-            color: isDark ? AppTheme.lightText : const Color(0xFF1A1A2E),
-          ),
-        ),
-        content: Text(
-          '"$title" will be permanently removed.',
-          style: TextStyle(
-            fontSize: 14,
-            color: isDark ? AppTheme.subText : Colors.grey[600],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(
-              "Cancel",
-              style: TextStyle(
-                color: isDark ? AppTheme.subText : Colors.grey[500],
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text(
-              "Delete",
-              style: TextStyle(
-                color: AppTheme.dangerRed,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm == true) {
-      provider.deleteExpense(id);
-    }
   }
 }
 
