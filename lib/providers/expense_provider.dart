@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -22,6 +23,7 @@ class ExpenseProvider extends ChangeNotifier {
   Future<void> init() async {
     _expenseBox = await Hive.openBox<Expense>('expenses');
     _incomeBox = await Hive.openBox<MonthlyIncome>('incomes');
+    await _loadCustomCategories();
     notifyListeners();
   }
 
@@ -169,13 +171,32 @@ class ExpenseProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Custom Categories
-  final List<String> _customCategories = [];
-  List<String> get customCategories => _customCategories;
+  // Custom Categories — persisted in SharedPreferences
+  List<String> _customCategories = [];
+  List<String> get customCategories => List.unmodifiable(_customCategories);
+
+  Future<void> _loadCustomCategories() async {
+    final prefs = await SharedPreferences.getInstance();
+    _customCategories = prefs.getStringList('custom_categories') ?? [];
+  }
+
+  Future<void> _saveCustomCategories() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('custom_categories', _customCategories);
+  }
 
   // Add Custom Category
-  void addCustomCategory(String name) {
-    _customCategories.add(name);
+  Future<void> addCustomCategory(String name) async {
+    if (!_customCategories.contains(name)) {
+      _customCategories.add(name);
+      await _saveCustomCategories();
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteCustomCategory(String name) async {
+    _customCategories.remove(name);
+    await _saveCustomCategories();
     notifyListeners();
   }
 }
