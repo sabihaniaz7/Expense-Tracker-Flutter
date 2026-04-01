@@ -37,8 +37,8 @@ class _SplashScreenState extends State<SplashScreen>
       if (mounted) {
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
-            pageBuilder: (_, __, ___) => const MainNavigation(),
-            transitionsBuilder: (_, anim, __, child) =>
+            pageBuilder: (_, _, _) => const MainNavigation(),
+            transitionsBuilder: (_, anim, _, child) =>
                 FadeTransition(opacity: anim, child: child),
             transitionDuration: const Duration(milliseconds: 500),
           ),
@@ -79,7 +79,7 @@ class _SplashScreenState extends State<SplashScreen>
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      AppTheme.neonPink.withOpacity(0.25),
+                      AppTheme.neonPink.withValues(alpha: 0.25),
                       Colors.transparent,
                     ],
                   ),
@@ -96,7 +96,7 @@ class _SplashScreenState extends State<SplashScreen>
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      AppTheme.neonPurple.withOpacity(0.22),
+                      AppTheme.neonPurple.withValues(alpha: 0.22),
                       Colors.transparent,
                     ],
                   ),
@@ -126,7 +126,7 @@ class _SplashScreenState extends State<SplashScreen>
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: AppTheme.neonPurple.withOpacity(0.5),
+                              color: AppTheme.neonPurple.withValues(alpha: 0.5),
                               blurRadius: 32,
                               spreadRadius: 2,
                             ),
@@ -140,11 +140,10 @@ class _SplashScreenState extends State<SplashScreen>
 
                       // App title
                       const Text(
-                        'SpendSmart',
+                        'Expense Tracker',
                         style: TextStyle(
-                          fontFamily: 'Syne',
-                          fontSize: 38,
-                          fontWeight: FontWeight.w800,
+                          fontSize: 30,
+                          fontWeight: FontWeight.w600,
                           color: AppTheme.lightText,
                           letterSpacing: -0.5,
                         ),
@@ -159,7 +158,6 @@ class _SplashScreenState extends State<SplashScreen>
                         child: const Text(
                           'Track every penny, smartly.',
                           style: TextStyle(
-                            fontFamily: 'Syne',
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
                             color: Colors.white,
@@ -193,7 +191,6 @@ class _SplashScreenState extends State<SplashScreen>
                     Text(
                       'Sabiha Niaz',
                       style: TextStyle(
-                        fontFamily: 'Syne',
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                         color: AppTheme.lightText,
