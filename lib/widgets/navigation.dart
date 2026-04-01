@@ -16,7 +16,7 @@ class MainNavigation extends StatefulWidget {
 
 class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
-  late final PageController _pageController;
+  late final PageController _pageController = PageController(initialPage: _currentIndex);
   final _screens = const [
     DashboardScreen(),
     StatisticsScreen(),
@@ -25,7 +25,6 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(initialPage: _currentIndex);
   }
 
   @override
@@ -129,7 +128,7 @@ class _NavItem extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const .symmetric(horizontal: 20, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         decoration: BoxDecoration(
           color: isActive
               ? activeColor.withValues(alpha: 0.1)
