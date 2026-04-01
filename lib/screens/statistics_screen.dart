@@ -1,6 +1,7 @@
 import 'package:expense_tracker/providers/expense_provider.dart';
 import 'package:expense_tracker/theme/app_theme.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -48,6 +49,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     final income = _selectedMonth != null
         ? provider.getIncomeForMonth(_selectedMonth!)
         : 0.0;
+    final remaining = (income - total).clamp(0.0, double.infinity);
     final sortedBreakdown = breakdown.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
@@ -55,13 +57,17 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     //     ? sortedBreakdown.first
     //     : null;
 
-    // Get previous month comparison
-    double previousTotal = 0;
-    if (_selectedMonth != null && months.length > 1) {
-      final idx = months.indexOf(_selectedMonth!);
-      if (idx < months.length - 1) {
-        previousTotal = provider.getTotalExpensesForMonth(months[idx + 1]);
-      }
+    // Pie sections: expense categories + income-remaining slice
+    // Centre label changes based on touched slice
+    String centerTop = fmt.format(total);
+    String centerBottom = 'spent';
+    if (_touchedIndex >= 0 && _touchedIndex < sortedBreakdown.length) {
+      final cat = sortedBreakdown[_touchedIndex];
+      centerTop = fmt.format(cat.value);
+      centerBottom = cat.key;
+    } else if (_touchedIndex == sortedBreakdown.length && income > 0) {
+      centerTop = fmt.format(remaining);
+      centerBottom = 'remaining';
     }
 
     return SafeArea(
@@ -78,7 +84,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 'Statistics',
                 style: TextStyle(
                   color: textColor,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
                   fontSize: 24,
                 ),
               ),
@@ -88,7 +94,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               child: SizedBox(
                 height: 44,
                 child: ListView.builder(
-                  padding: const .symmetric(horizontal: 20),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   scrollDirection: Axis.horizontal,
                   itemCount: months.length,
                   itemBuilder: (context, i) {
@@ -104,25 +110,43 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       }),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
-                        margin: const .only(right: 8),
-                        padding: const .symmetric(horizontal: 16),
+                        margin: const EdgeInsets.only(right: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                         decoration: BoxDecoration(
-                          color: isSelected
-                              ? AppTheme.neonPurple
-                              : (isDark ? AppTheme.darkCard : Colors.white),
+                          // color: isSelected
+                          //     ? AppTheme.neonPurple
+                          //     : (isDark ? AppTheme.darkCard : Colors.white),
                           borderRadius: BorderRadius.circular(22),
-                          border: Border.all(
-                            color: isSelected
-                                ? AppTheme.neonPurple
-                                : Colors.transparent,
-                          ),
+                          gradient: isSelected
+                              ? const LinearGradient(
+                                  colors: [
+                                    AppTheme.neonPurple,
+                                    AppTheme.neonPink,
+                                  ],
+                                )
+                              : null,
+                          color: isSelected
+                              ? null
+                              : (isDark ? AppTheme.darkCard : Colors.white),
+                          boxShadow: isSelected
+                              ? [
+                                  BoxShadow(
+                                    color: AppTheme.neonPurple.withValues(
+                                      alpha: 0.35,
+                                    ),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ]
+                              : null,
                         ),
+
                         child: Center(
                           child: Text(
                             label,
                             style: TextStyle(
                               color: isSelected ? Colors.white : subColor,
-                              fontWeight: .w500,
+                              fontWeight: FontWeight.w500,
                               fontSize: 13,
                             ),
                           ),
@@ -139,7 +163,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 60),
                   child: Column(
                     children: [
-                      const Text('📊', style: TextStyle(fontSize: 56)),
+                      Icon(CupertinoIcons.chart_pie, size: 56, color: subColor),
                       const SizedBox(height: 16),
                       Text(
                         'No data for this month',
@@ -157,17 +181,16 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               // Pie Chart card
               SliverToBoxAdapter(
                 child: Container(
-                  margin: const .all(20),
-                  padding: const .all(24),
+                  margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                  padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
                     color: cardColor,
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: Column(
-                    crossAxisAlignment: .start,
                     children: [
                       Row(
-                        mainAxisAlignment: .spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             DateFormat(
@@ -175,98 +198,107 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             ).format(DateTime.parse('$_selectedMonth-01')),
                             style: TextStyle(
                               fontSize: 20,
-                              fontWeight: .w500,
+                              fontWeight: FontWeight.w500,
                               color: textColor,
                             ),
                           ),
-                          Text(
-                            '- ${fmt.format(total)}',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                              color: AppTheme.dangerRed,
-                            ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                '+ ${fmt.format(income)}',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppTheme.safeGreen,
+                                ),
+                              ),
+                              Text(
+                                '- ${fmt.format(total)}',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppTheme.dangerRed,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 20),
                       SizedBox(
                         height: 220,
-                        child: PieChart(
-                          PieChartData(
-                            sections: sortedBreakdown.asMap().entries.map((
-                              entry,
-                            ) {
-                              final idx = entry.key;
-                              final cat = entry.value.key;
-                              final val = entry.value.value;
-                              final color = AppCategories.getColor(cat);
-                              final isTouched = idx == _touchedIndex;
-                              return PieChartSectionData(
-                                color: color,
-                                value: val,
-                                title: isTouched
-                                    ? '${(val / total * 100).toStringAsFixed(1)}%'
-                                    : '',
-                                radius: isTouched ? 90 : 75,
-                                titleStyle: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 14,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            PieChart(
+                              PieChartData(
+                                sections: sortedBreakdown.asMap().entries.map((
+                                  entry,
+                                ) {
+                                  final idx = entry.key;
+                                  final cat = entry.value.key;
+                                  final val = entry.value.value;
+                                  final color = AppCategories.getColor(cat);
+                                  final isTouched = idx == _touchedIndex;
+                                  return PieChartSectionData(
+                                    color: color,
+                                    value: val,
+                                    title: isTouched
+                                        ? '${(val / (income > 0 ? income : total) * 100).toStringAsFixed(1)}%'
+                                        : '',
+                                    radius: isTouched ? 90 : 75,
+                                    titleStyle: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14,
+                                    ),
+                                  );
+                                }).toList(),
+                                pieTouchData: PieTouchData(
+                                  touchCallback: (event, pieTouchResponse) {
+                                    setState(() {
+                                      if (pieTouchResponse == null ||
+                                          pieTouchResponse.touchedSection ==
+                                              null) {
+                                        _touchedIndex = -1;
+                                      } else {
+                                        _touchedIndex = pieTouchResponse
+                                            .touchedSection!
+                                            .touchedSectionIndex;
+                                      }
+                                    });
+                                  },
                                 ),
-                              );
-                            }).toList(),
-                            pieTouchData: PieTouchData(
-                              touchCallback: (event, pieTouchResponse) {
-                                setState(() {
-                                  if (pieTouchResponse == null ||
-                                      pieTouchResponse.touchedSection == null) {
-                                    _touchedIndex = -1;
-                                  } else {
-                                    _touchedIndex = pieTouchResponse
-                                        .touchedSection!
-                                        .touchedSectionIndex;
-                                  }
-                                });
-                              },
+                                borderData: FlBorderData(show: false),
+                                centerSpaceRadius: 50,
+                                sectionsSpace: 3,
+                              ),
                             ),
-                            borderData: FlBorderData(show: false),
-                            centerSpaceRadius: 50,
-                            sectionsSpace: 3,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              // Summary stats
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const .symmetric(horizontal: 20),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: _SummaryChip(
-                          label: 'Income',
-                          value: fmt.format(income),
-                          color: AppTheme.safeGreen,
-                          isDark: isDark,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _SummaryChip(
-                          label: 'vs Last Month',
-                          value: previousTotal == 0
-                              ? 'N/A'
-                              : total > previousTotal
-                              ? '+${fmt.format(total - previousTotal)}'
-                              : '-${fmt.format(previousTotal - total)}',
-                          color: total > previousTotal
-                              ? AppTheme.dangerRed
-                              : AppTheme.safeGreen,
-                          isDark: isDark,
+                            // Centre label
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  centerTop,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500,
+                                    color: textColor,
+                                  ),
+                                ),
+                                Text(
+                                  centerBottom,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: subColor,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -300,14 +332,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               //             ),
               //             const SizedBox(width: 12),
               //             Column(
-              //               crossAxisAlignment: .start,
+              //               crossAxisAlignment: CrossAxisAlignment.start,
               //               children: [
               //                 Text(
               //                   'Highest Spending',
               //                   style: TextStyle(
               //                     fontSize: 13,
               //                     color: subColor,
-              //                     fontWeight: .w500,
+              //                     fontWeight: FontWeight.w500,
               //                   ),
               //                 ),
               //                 Text(
@@ -337,7 +369,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               // Category breakdown list
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 4),
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
                   child: Text(
                     'Breakdown',
                     style: TextStyle(
@@ -360,7 +392,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         setState(() => _touchedIndex = isTouched ? -1 : i),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
-                      margin: EdgeInsets.fromLTRB(20, 0, 20, 10),
+                      margin: const EdgeInsets.fromLTRB(20, 0, 20, 10),
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: isTouched
@@ -396,17 +428,17 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                     Text(
                                       entry.key,
                                       style: TextStyle(
-                                        fontWeight: FontWeight.w600,
+                                        fontWeight: FontWeight.w500,
                                         color: textColor,
-                                        fontSize: 14,
+                                        fontSize: 15,
                                       ),
                                     ),
                                     Text(
                                       fmt.format(entry.value),
                                       style: TextStyle(
-                                        fontWeight: FontWeight.w700,
+                                        fontWeight: FontWeight.w500,
                                         color: textColor,
-                                        fontSize: 14,
+                                        fontSize: 15,
                                       ),
                                     ),
                                   ],
@@ -429,6 +461,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                   style: TextStyle(
                                     fontSize: 11,
                                     color: subColor,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               ],
@@ -444,49 +477,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             ],
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _SummaryChip extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color color;
-  final bool isDark;
-
-  const _SummaryChip({
-    required this.label,
-    required this.value,
-    required this.color,
-    required this.isDark,
-  });
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
-      ),
-      child: Column(
-        crossAxisAlignment: .start,
-        children: [
-          Text(
-            label,
-            style: TextStyle(fontSize: 13, color: color.withValues(alpha: 0.8)),
-          ),
-          const SizedBox(height: 1),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: color,
-            ),
-          ),
-        ],
       ),
     );
   }
