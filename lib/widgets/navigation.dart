@@ -16,11 +16,33 @@ class MainNavigation extends StatefulWidget {
 
 class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
+  late final PageController _pageController;
   final _screens = const [
     DashboardScreen(),
     StatisticsScreen(),
     HistoryScreen(),
   ];
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: _currentIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _onNavTapped(int index) {
+    setState(() => _currentIndex = index);
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = context.watch<ExpenseProvider>().isDarkMode;
@@ -28,11 +50,15 @@ class _MainNavigationState extends State<MainNavigation> {
     final activeColor = AppTheme.neonPurple;
     final inactiveColor = isDark ? AppTheme.subText : Colors.grey[400]!;
     return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: _screens),
+      body: PageView(
+        controller: _pageController,
+        physics: const NeverScrollableScrollPhysics(),
+        onPageChanged: (index) => setState(() => _currentIndex = index),
+        children: _screens,
+      ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: navBg,
-
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
@@ -53,7 +79,7 @@ class _MainNavigationState extends State<MainNavigation> {
                   isActive: _currentIndex == 0,
                   activeColor: activeColor,
                   inactiveColor: inactiveColor,
-                  onTap: () => setState(() => _currentIndex = 0),
+                  onTap: () => _onNavTapped(0),
                 ),
                 _NavItem(
                   icon: CupertinoIcons.chart_pie,
@@ -61,7 +87,7 @@ class _MainNavigationState extends State<MainNavigation> {
                   isActive: _currentIndex == 1,
                   activeColor: activeColor,
                   inactiveColor: inactiveColor,
-                  onTap: () => setState(() => _currentIndex = 1),
+                  onTap: () => _onNavTapped(1),
                 ),
                 _NavItem(
                   icon: CupertinoIcons.list_bullet,
@@ -69,7 +95,7 @@ class _MainNavigationState extends State<MainNavigation> {
                   isActive: _currentIndex == 2,
                   activeColor: activeColor,
                   inactiveColor: inactiveColor,
-                  onTap: () => setState(() => _currentIndex = 2),
+                  onTap: () => _onNavTapped(2),
                 ),
               ],
             ),
