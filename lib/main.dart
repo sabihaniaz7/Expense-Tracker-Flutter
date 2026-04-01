@@ -1,6 +1,6 @@
 import 'package:expense_tracker/providers/expense_provider.dart';
+import 'package:expense_tracker/screens/splash_screen.dart';
 import 'package:expense_tracker/theme/app_theme.dart';
-import 'package:expense_tracker/widgets/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -36,7 +36,7 @@ class ExpenseTrackerApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
-      home: MainNavigation(),
+      home: SplashScreen(),
     );
   }
 }
