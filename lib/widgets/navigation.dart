@@ -16,7 +16,9 @@ class MainNavigation extends StatefulWidget {
 
 class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
-  late final PageController _pageController = PageController(initialPage: _currentIndex);
+  late final PageController _pageController = PageController(
+    initialPage: _currentIndex,
+  );
   final _screens = const [
     DashboardScreen(),
     StatisticsScreen(),
@@ -51,7 +53,6 @@ class _MainNavigationState extends State<MainNavigation> {
     return Scaffold(
       body: PageView(
         controller: _pageController,
-        physics: const NeverScrollableScrollPhysics(),
         onPageChanged: (index) => setState(() => _currentIndex = index),
         children: _screens,
       ),
