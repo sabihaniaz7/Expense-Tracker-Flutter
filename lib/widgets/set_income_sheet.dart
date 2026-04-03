@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
 import 'package:provider/provider.dart';
 import '../providers/expense_provider.dart';
 
 class SetIncomeSheet extends StatefulWidget {
-  const SetIncomeSheet({super.key});
+  /// The month key (e.g. "2026-03") this sheet sets income for.
+  /// Defaults to current month if null
+  final String? monthKey;
+  const SetIncomeSheet({super.key, this.monthKey});
 
   @override
   State<SetIncomeSheet> createState() => _SetIncomeSheetState();
@@ -12,10 +16,18 @@ class SetIncomeSheet extends StatefulWidget {
 
 class _SetIncomeSheetState extends State<SetIncomeSheet> {
   final _ctrl = TextEditingController();
+  String get _mKey =>
+      widget.monthKey ?? context.read<ExpenseProvider>().currentMonthKey;
+
+  String get _monthLabel {
+    final date = DateTime.parse('$_mKey-01');
+    return DateFormat('MMMM yyyy').format(date);
+  }
+
   @override
   void initState() {
     super.initState();
-    final income = context.read<ExpenseProvider>().currentMonthIncome;
+    final income = context.read<ExpenseProvider>().getIncomeForMonth(_mKey);
     if (income > 0) _ctrl.text = income.toStringAsFixed(0);
   }
 
@@ -54,16 +66,42 @@ class _SetIncomeSheetState extends State<SetIncomeSheet> {
             'Set Monthly Income',
             style: TextStyle(
               fontSize: 22,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w500,
               color: textColor,
             ),
           ),
+          const SizedBox(height: 4),
+          // Show which month is being edited — key detail
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: AppTheme.neonPurple,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  _monthLabel,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
           const SizedBox(height: 6),
           Text(
-            'This will be used to calculate your remaining balance.',
+            'Used to calculate remaining balance for this month.',
             style: TextStyle(
               fontSize: 13,
               color: textColor.withValues(alpha: 0.5),
+              fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(height: 24),
@@ -81,13 +119,13 @@ class _SetIncomeSheetState extends State<SetIncomeSheet> {
               prefixStyle: TextStyle(
                 color: AppTheme.neonPurple,
                 fontSize: 24,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
               hintText: '0',
               hintStyle: TextStyle(
                 color: textColor.withValues(alpha: 0.2),
                 fontSize: 24,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
               filled: true,
               fillColor: isDark
@@ -127,7 +165,7 @@ class _SetIncomeSheetState extends State<SetIncomeSheet> {
               ),
               child: const Text(
                 'Save Income',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
             ),
           ),
