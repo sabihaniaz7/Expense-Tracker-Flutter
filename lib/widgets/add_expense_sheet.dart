@@ -6,7 +6,8 @@ import '../models/expense_model.dart';
 
 class AddExpenseSheet extends StatefulWidget {
   final Expense? editExpense;
-  const AddExpenseSheet({super.key, this.editExpense});
+  final String? defaultMonthKey;
+  const AddExpenseSheet({super.key, this.editExpense, this.defaultMonthKey});
 
   @override
   State<AddExpenseSheet> createState() => _AddExpenseSheetState();
@@ -18,7 +19,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
   final _amountCtrl = TextEditingController();
   final _noteCtrl = TextEditingController();
   String _selectedCategory = 'Food & Drink';
-  DateTime _selectedDate = DateTime.now();
+  late DateTime _selectedDate;
   bool _addingCustom = false;
   final _customCatCtrl = TextEditingController();
 
@@ -31,6 +32,18 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
       _noteCtrl.text = widget.editExpense!.note;
       _selectedCategory = widget.editExpense!.category;
       _selectedDate = widget.editExpense!.date;
+    } else if (widget.defaultMonthKey != null) {
+      final parts = widget.defaultMonthKey!.split('-');
+      final y = int.parse(parts[0]);
+      final m = int.parse(parts[1]);
+      final now = DateTime.now();
+      if (now.year == y && now.month == m) {
+        _selectedDate = now;
+      } else {
+        _selectedDate = DateTime(y, m + 1, 0); // last day of that month
+      }
+    } else {
+      _selectedDate = DateTime.now();
     }
   }
 
@@ -64,30 +77,30 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-            // Handle
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: isDark ? Colors.white24 : Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
+              // Handle
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.white24 : Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              widget.editExpense != null ? 'Edit Expense' : 'Add Expense',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
-                color: textColor,
+              const SizedBox(height: 20),
+              Text(
+                widget.editExpense != null ? 'Edit Expense' : 'Add Expense',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w500,
+                  color: textColor,
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-            // Amount Input
-            _buildLabel('Amount', textColor),
+              // Amount Input
+              _buildLabel('Amount', textColor),
               _buildTextField(
                 _amountCtrl,
                 '\$ 0.00',
@@ -117,9 +130,9 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                   return null;
                 },
               ),
-            const SizedBox(height: 16),
-            // Title
-            _buildLabel('Title/Item', textColor),
+              const SizedBox(height: 16),
+              // Title
+              _buildLabel('Title/Item', textColor),
               _buildTextField(
                 _titleCtrl,
                 'Dress, Shoes, Lunch ...',
@@ -132,224 +145,228 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                   return null;
                 },
               ),
-            const SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-            // Category selector
-            _buildLabel('Category', textColor),
+              // Category selector
+              _buildLabel('Category', textColor),
 
-            SizedBox(
-              height: 44,
-              child: ListView.builder(
-                shrinkWrap: true,
-                physics: const ClampingScrollPhysics(),
-                scrollDirection: Axis.horizontal,
-                itemCount: allCategories.length + 1,
-                itemBuilder: (context, i) {
-                  if (i == allCategories.length) {
+              SizedBox(
+                height: 44,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  physics: const ClampingScrollPhysics(),
+                  scrollDirection: Axis.horizontal,
+                  itemCount: allCategories.length + 1,
+                  itemBuilder: (context, i) {
+                    if (i == allCategories.length) {
+                      return GestureDetector(
+                        onTap: () =>
+                            setState(() => _addingCustom = !_addingCustom),
+                        child: Container(
+                          margin: const EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 14),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: AppTheme.neonPurple.withValues(alpha: 0.5),
+                            ),
+                          ),
+                          child: const Row(
+                            children: [
+                              Icon(
+                                Icons.add,
+                                color: AppTheme.neonPurple,
+                                size: 16,
+                              ),
+                              SizedBox(width: 4),
+                              Text(
+                                'Custom',
+                                style: TextStyle(
+                                  color: AppTheme.neonPurple,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+                    final cat = allCategories[i];
+                    final isSelected = _selectedCategory == cat;
+                    final isCustom = provider.customCategories.contains(cat);
+                    final color = AppCategories.getColor(cat);
                     return GestureDetector(
-                      onTap: () =>
-                          setState(() => _addingCustom = !_addingCustom),
-                      child: Container(
+                      onTap: () => setState(() => _selectedCategory = cat),
+                      onLongPress: isCustom
+                          ? () => _confirmDeleteCategory(context, cat, provider)
+                          : null,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
                         margin: const EdgeInsets.only(right: 8),
                         padding: const EdgeInsets.symmetric(horizontal: 14),
                         decoration: BoxDecoration(
+                          color: isSelected
+                              ? color.withValues(alpha: 0.2)
+                              : Colors.transparent,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: AppTheme.neonPurple.withValues(alpha: 0.5),
+                            color: isSelected
+                                ? color
+                                : (isDark ? Colors.white12 : Colors.grey[200]!),
+                            width: isSelected ? 1.5 : 1,
                           ),
                         ),
-                        child: const Row(
+                        child: Row(
                           children: [
-                            Icon(
-                              Icons.add,
-                              color: AppTheme.neonPurple,
-                              size: 16,
-                            ),
-                            SizedBox(width: 4),
                             Text(
-                              'Custom',
+                              AppCategories.getEmoji(cat),
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              cat,
                               style: TextStyle(
-                                color: AppTheme.neonPurple,
+                                color: isSelected ? color : subColor,
+                                fontWeight: FontWeight.w500,
                                 fontSize: 13,
-                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ],
                         ),
                       ),
                     );
-                  }
-                  final cat = allCategories[i];
-                  final isSelected = _selectedCategory == cat;
-                  final isCustom = provider.customCategories.contains(cat);
-                  final color = AppCategories.getColor(cat);
-                  return GestureDetector(
-                    onTap: () => setState(() => _selectedCategory = cat),
-                    onLongPress: isCustom
-                        ? () => _confirmDeleteCategory(context, cat, provider)
-                        : null,
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      margin: const EdgeInsets.only(right: 8),
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? color.withValues(alpha: 0.2)
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isSelected
-                              ? color
-                              : (isDark ? Colors.white12 : Colors.grey[200]!),
-                          width: isSelected ? 1.5 : 1,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Text(
-                            AppCategories.getEmoji(cat),
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            cat,
-                            style: TextStyle(
-                              color: isSelected ? color : subColor,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            // Custom Category Input
-            if (_addingCustom) ...{
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildTextField(
-                      _customCatCtrl,
-                      'Category Name',
-                      isDark,
-                      textColor,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  GestureDetector(
-                    onTap: () {
-                      if (_customCatCtrl.text.trim().isNotEmpty) {
-                        provider.addCustomCategory(_customCatCtrl.text.trim());
-                        setState(() {
-                          _selectedCategory = _customCatCtrl.text.trim();
-                          _addingCustom = false;
-                        });
-                        _customCatCtrl.clear();
-                      }
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppTheme.neonPurple,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Text(
-                        'Add',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            },
-            const SizedBox(height: 16),
-            // Date selector
-            _buildLabel('Date', textColor),
-            GestureDetector(
-              onTap: () async {
-                final picked = await showDatePicker(
-                  context: context,
-                  initialDate: _selectedDate,
-                  firstDate: DateTime(2020),
-                  lastDate: DateTime.now(),
-                );
-                if (picked != null) setState(() => _selectedDate = picked);
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
+                  },
                 ),
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? AppTheme.darkSurface
-                      : const Color(0xFFF5F5FA),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Row(
+              ),
+              // Custom Category Input
+              if (_addingCustom) ...{
+                const SizedBox(height: 12),
+                Row(
                   children: [
-                    Icon(
-                      Icons.calendar_today_outlined,
-                      color: textColor.withValues(alpha: 0.6),
-                      size: 20,
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      _formatDate(_selectedDate),
-                      style: TextStyle(
-                        color: textColor,
-
-                        fontWeight: FontWeight.w500,
+                    Expanded(
+                      child: _buildTextField(
+                        _customCatCtrl,
+                        'Category Name',
+                        isDark,
+                        textColor,
                       ),
                     ),
-                    const Spacer(),
-                    Icon(
-                      Icons.arrow_drop_down,
-                      color: textColor.withValues(alpha: 0.6),
-                      size: 24,
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: () {
+                        if (_customCatCtrl.text.trim().isNotEmpty) {
+                          provider.addCustomCategory(
+                            _customCatCtrl.text.trim(),
+                          );
+                          setState(() {
+                            _selectedCategory = _customCatCtrl.text.trim();
+                            _addingCustom = false;
+                          });
+                          _customCatCtrl.clear();
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppTheme.neonPurple,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Text(
+                          'Add',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Note
-            _buildLabel('Note (Optional)', textColor),
-            _buildTextField(_noteCtrl, 'Add a note', isDark, textColor),
-            const SizedBox(height: 28),
-            // Save Button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _save,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.neonPurple,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+              },
+              const SizedBox(height: 16),
+              // Date selector
+              _buildLabel('Date', textColor),
+              GestureDetector(
+                onTap: () async {
+                  final picked = await showDatePicker(
+                    context: context,
+                    initialDate: _selectedDate,
+                    firstDate: DateTime(2020),
+                    lastDate: DateTime.now(),
+                  );
+                  if (picked != null) setState(() => _selectedDate = picked);
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
                   ),
-                  elevation: 0,
-                ),
-                child: Text(
-                  widget.editExpense != null ? 'Update Expense' : 'Add Expense',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? AppTheme.darkSurface
+                        : const Color(0xFFF5F5FA),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.calendar_today_outlined,
+                        color: textColor.withValues(alpha: 0.6),
+                        size: 20,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        _formatDate(_selectedDate),
+                        style: TextStyle(
+                          color: textColor,
+
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const Spacer(),
+                      Icon(
+                        Icons.arrow_drop_down,
+                        color: textColor.withValues(alpha: 0.6),
+                        size: 24,
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ),
+              const SizedBox(height: 16),
+              // Note
+              _buildLabel('Note (Optional)', textColor),
+              _buildTextField(_noteCtrl, 'Add a note', isDark, textColor),
+              const SizedBox(height: 28),
+              // Save Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _save,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.neonPurple,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    widget.editExpense != null
+                        ? 'Update Expense'
+                        : 'Add Expense',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -394,7 +411,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
         label,
         style: TextStyle(
           fontSize: 13,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w500,
           color: color.withValues(alpha: 0.6),
         ),
       ),
@@ -512,7 +529,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
               'Cancel',
               style: TextStyle(
                 color: isDark ? AppTheme.subText : Colors.grey[500],
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
