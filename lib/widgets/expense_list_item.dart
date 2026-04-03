@@ -57,7 +57,7 @@ class ExpenseListItem extends StatelessWidget {
                   'Cancel',
                   style: TextStyle(
                     color: isDark ? AppTheme.subText : Colors.grey[500],
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -67,7 +67,7 @@ class ExpenseListItem extends StatelessWidget {
                   'Delete',
                   style: TextStyle(
                     color: AppTheme.dangerRed,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -100,7 +100,7 @@ class ExpenseListItem extends StatelessWidget {
               style: TextStyle(
                 color: AppTheme.dangerRed,
                 fontSize: 11,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
@@ -143,19 +143,20 @@ class ExpenseListItem extends StatelessWidget {
                     Text(
                       expense.title,
                       style: TextStyle(
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         fontSize: 15,
                         color: isDark
                             ? AppTheme.lightText
                             : const Color(0xFF1A1A2E),
                       ),
                     ),
-                    const SizedBox(height: 3),
+                    const SizedBox(height: 1),
                     Text(
                       expense.category,
                       style: TextStyle(
                         color: isDark ? AppTheme.subText : Colors.grey[500],
                         fontSize: 12,
+                        fontWeight: .w500,
                       ),
                     ),
                   ],
@@ -169,7 +170,7 @@ class ExpenseListItem extends StatelessWidget {
                   Text(
                     '- ${fmt.format(expense.amount)}',
                     style: TextStyle(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       color: AppTheme.dangerRed,
                       fontSize: 15,
                     ),
