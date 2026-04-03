@@ -5,17 +5,28 @@ import '../providers/expense_provider.dart';
 import 'package:intl/intl.dart';
 
 class BalanceCard extends StatelessWidget {
-  const BalanceCard({super.key});
+  /// The month this card displays. Defaults to current month if null.
+  final String? monthKey;
+  const BalanceCard({super.key, this.monthKey});
 
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ExpenseProvider>();
-    final income = provider.currentMonthIncome;
-    final expenses = provider.currentMonthTotalExpenses;
-    final remaining = provider.currentMonthRemaining;
-    final usedPct = provider.usedPercentage;
-    final warningLevel = provider.warningLevel;
+    final mKey = monthKey ?? provider.currentMonthKey;
+    final income = provider.getIncomeForMonth(mKey);
+    final expenses = provider.getTotalExpensesForMonth(mKey);
+    final remaining = income - expenses;
+    final usedPct = income > 0 ? (expenses / income) * 100 : 0.0;
     final fmt = NumberFormat.currency(symbol: '\$', decimalDigits: 0);
+    // Warning level
+    int warningLevel = 0;
+    if (usedPct >= 100) {
+      warningLevel = 3;
+    } else if (usedPct >= 90) {
+      warningLevel = 2;
+    } else if (usedPct >= 70) {
+      warningLevel = 1;
+    }
 
     //Card gradient colors based on warning level
     List<Color> gradientColors;
@@ -38,9 +49,9 @@ class BalanceCard extends StatelessWidget {
         glowColor = AppTheme.neonPurple.withValues(alpha: 0.4);
     }
     return Container(
-      margin: const .symmetric(horizontal: 20, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       decoration: BoxDecoration(
-        borderRadius: .circular(24),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
             color: glowColor,
@@ -63,24 +74,23 @@ class BalanceCard extends StatelessWidget {
           ),
         ),
         child: Column(
-          crossAxisAlignment: .start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Top Row
             Row(
-              mainAxisAlignment: .spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   'My Balance',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.8),
-                    fontSize: 14,
-                    fontWeight: .w500,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 8),
-
             // Remaining Amount
             Text(
               remaining < 0
@@ -98,20 +108,22 @@ class BalanceCard extends StatelessWidget {
             _ProgressBar(usedPct: usedPct, warningLevel: warningLevel),
             const SizedBox(height: 6),
             Row(
-              mainAxisAlignment: .spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   '${usedPct.toStringAsFixed(0)}% used',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.7),
-                    fontSize: 11,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
                 Text(
                   'of ${fmt.format(income)}',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.7),
-                    fontSize: 11,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -135,7 +147,7 @@ class BalanceCard extends StatelessWidget {
                     label: 'Expenses',
                     amount: fmt.format(expenses),
                     icon: '↓',
-                    color: Colors.white70,
+                    color: Colors.white,
                   ),
                 ),
               ],
@@ -163,7 +175,7 @@ class _StatChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const .symmetric(horizontal: 14, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(14),
@@ -191,13 +203,14 @@ class _StatChip extends StatelessWidget {
           // const SizedBox(width: 8),
           Expanded(
             child: Column(
-              crossAxisAlignment: .start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   label,
                   style: TextStyle(
-                    color: color.withValues(alpha: 0.7),
-                    fontSize: 11,
+                    color: color,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
                   ),
                 ),
                 const SizedBox(height: 1),
@@ -207,8 +220,8 @@ class _StatChip extends StatelessWidget {
                   child: Text(
                     amount,
                     style: TextStyle(
-                      color: color,
-                      fontWeight: FontWeight.w700,
+                      color: color.withValues(alpha: 0.9),
+                      fontWeight: FontWeight.w500,
                       fontSize: 14,
                     ),
                   ),
@@ -232,7 +245,7 @@ class _ProgressBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final pct = (usedPct / 100).clamp(0.0, 1.0);
     return ClipRRect(
-      borderRadius: .circular(8),
+      borderRadius: BorderRadius.circular(8),
       child: Container(
         height: 6,
         color: Colors.white.withValues(alpha: 0.2),

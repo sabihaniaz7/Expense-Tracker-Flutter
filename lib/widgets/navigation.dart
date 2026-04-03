@@ -19,11 +19,7 @@ class _MainNavigationState extends State<MainNavigation> {
   late final PageController _pageController = PageController(
     initialPage: _currentIndex,
   );
-  final _screens = const [
-    DashboardScreen(),
-    StatisticsScreen(),
-    HistoryScreen(),
-  ];
+
   @override
   void initState() {
     super.initState();
@@ -54,7 +50,11 @@ class _MainNavigationState extends State<MainNavigation> {
       body: PageView(
         controller: _pageController,
         onPageChanged: (index) => setState(() => _currentIndex = index),
-        children: _screens,
+        children: const [
+          DashboardScreen(),
+          StatisticsScreen(),
+          HistoryScreen(),
+        ],
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
