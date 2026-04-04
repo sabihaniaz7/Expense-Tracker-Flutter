@@ -17,12 +17,14 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  String? _viewingMonthKey; // null means 'current month'
   String _activeMonthKey(ExpenseProvider provider) =>
-      _viewingMonthKey ?? provider.currentMonthKey;
+      provider.dashboardMonthKey ?? provider.currentMonthKey;
 
-  bool get _isBrowsingPast => _viewingMonthKey != null;
-  void _resetToCurrentMonth() => setState(() => _viewingMonthKey = null);
+  bool _isBrowsingPast(ExpenseProvider provider) =>
+      provider.dashboardMonthKey != null;
+
+  void _resetToCurrentMonth(ExpenseProvider provider) =>
+      setState(() => provider.setDashboardMonth(null));
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +33,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final textColor = isDark ? AppTheme.lightText : const Color(0xFF1A1A2E);
     final subColor = isDark ? AppTheme.subText : Colors.grey[500]!;
     final mKey = _activeMonthKey(provider);
+    final isBrowsingPast = _isBrowsingPast(provider);
     final expenses = provider.getExpenseForMonth(mKey);
     final date = DateTime.parse('$mKey-01');
     final fullMonth = DateFormat('MMMM').format(date);
@@ -56,13 +59,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 onTap: () => _pickMonth(context, provider),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
+                    horizontal: 10,
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: isDark
-                        ? Colors.white.withValues(alpha: 0.08)
-                        : Colors.black.withValues(alpha: 0.05),
+                    color: AppTheme.neonPurple,
+                    //  isDark
+                    //     ? Colors.white.withValues(alpha: 0.08)
+                    //     : Colors.black.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: isDark
@@ -77,7 +81,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Text(
                         monthLabel,
                         style: TextStyle(
-                          fontSize: 22,
+                          fontSize: 20,
                           fontWeight: FontWeight.w500,
                           color: textColor,
                         ),
@@ -86,7 +90,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       const SizedBox(width: 2),
                       // DropDown arrow
                       Icon(
-                        Icons.keyboard_arrow_down_rounded,
+                        Icons.arrow_drop_down_rounded,
                         size: 20,
                         color: isDark ? Colors.white54 : Colors.black38,
                       ),
@@ -145,7 +149,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ],
             ),
             // ── "Viewing past month" banner ────────────────────────────────────
-            if (_isBrowsingPast)
+            if (isBrowsingPast)
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
@@ -162,7 +166,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                       const Spacer(),
                       GestureDetector(
-                        onTap: _resetToCurrentMonth,
+                        onTap: () => _resetToCurrentMonth(provider),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 10,
@@ -357,9 +361,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                   return GestureDetector(
                     onTap: () {
-                      setState(() {
-                        _viewingMonthKey = isCurrentMonth ? null : mKey;
-                      });
+                      provider.setDashboardMonth(isCurrentMonth ? null : mKey);
                       Navigator.pop(context);
                     },
                     child: AnimatedContainer(

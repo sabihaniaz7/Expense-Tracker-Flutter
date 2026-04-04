@@ -20,6 +20,17 @@ class ExpenseProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Which month the dasboard is currently viewing
+  // null = current month. Stored here so it survives screen navigation.
+  String? _dashboardMonthKey;
+  String? get dashboardMonthKey => _dashboardMonthKey;
+
+  // Set the month to view on dashboard
+  void setDashboardMonth(String? mKey) {
+    _dashboardMonthKey = mKey;
+    notifyListeners();
+  }
+
   Future<void> init() async {
     _expenseBox = await Hive.openBox<Expense>('expenses');
     _incomeBox = await Hive.openBox<MonthlyIncome>('incomes');
