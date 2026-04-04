@@ -1,3 +1,7 @@
+import 'package:expense_tracker/widgets/common/app_button.dart';
+import 'package:expense_tracker/widgets/common/app_input_field.dart';
+import 'package:expense_tracker/widgets/common/app_sheet.dart';
+import 'package:expense_tracker/widgets/common/input_label.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import 'package:provider/provider.dart';
@@ -51,7 +55,6 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
   Widget build(BuildContext context) {
     final provider = context.watch<ExpenseProvider>();
     final isDark = provider.isDarkMode;
-    final bg = isDark ? AppTheme.darkCard : Colors.white;
     final textColor = isDark ? AppTheme.lightText : const Color(0xFF1A1A2E);
     final subColor = isDark ? AppTheme.subText : Colors.grey[500]!;
 
@@ -60,35 +63,19 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
       ...provider.customCategories,
     ];
 
-    return Container(
+    return AppSheet(
       padding: EdgeInsets.only(
         left: 20,
         right: 20,
         top: 20,
         bottom: MediaQuery.of(context).viewInsets.bottom + 20,
       ),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      child: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
+      children: [
+        Form(
+          key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Handle
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: isDark ? Colors.white24 : Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
               Text(
                 widget.editExpense != null ? 'Edit Expense' : 'Add Expense',
                 style: TextStyle(
@@ -100,44 +87,40 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
               const SizedBox(height: 20),
 
               // Amount Input
-              _buildLabel('Amount', textColor),
-              _buildTextField(
-                _amountCtrl,
-                '\$ 0.00',
-                isDark,
-                textColor,
+              InputLabel(label: 'Amount', color: textColor),
+              AppInputField(
+                controller: _amountCtrl,
+                hint: '\$ 0.00',
+                isDark: isDark,
+                textColor: textColor,
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
                 prefixText: '\$  ',
                 fontSize: 24,
-                fontWeight: FontWeight.w500,
                 validator: (value) {
                   final amountText = (value ?? '').trim().replaceAll(',', '');
                   if (amountText.isEmpty) {
                     return 'Please enter an amount';
                   }
-
                   final amount = double.tryParse(amountText);
                   if (amount == null) {
                     return 'Enter a valid numeric amount';
                   }
-
                   if (amount <= 0) {
                     return 'Amount must be greater than 0';
                   }
-
                   return null;
                 },
               ),
               const SizedBox(height: 16),
               // Title
-              _buildLabel('Title/Item', textColor),
-              _buildTextField(
-                _titleCtrl,
-                'Dress, Shoes, Lunch ...',
-                isDark,
-                textColor,
+              InputLabel(label: 'Title/Item', color: textColor),
+              AppInputField(
+                controller: _titleCtrl,
+                hint: 'Dress, Shoes, Lunch ...',
+                isDark: isDark,
+                textColor: textColor,
                 validator: (value) {
                   if ((value ?? '').trim().isEmpty) {
                     return 'Please enter a title';
@@ -148,8 +131,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
               const SizedBox(height: 16),
 
               // Category selector
-              _buildLabel('Category', textColor),
-
+              InputLabel(label: 'Category', color: textColor),
               SizedBox(
                 height: 44,
                 child: ListView.builder(
@@ -245,11 +227,11 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                 Row(
                   children: [
                     Expanded(
-                      child: _buildTextField(
-                        _customCatCtrl,
-                        'Category Name',
-                        isDark,
-                        textColor,
+                      child: AppInputField(
+                        controller: _customCatCtrl,
+                        hint: 'Category Name',
+                        isDark: isDark,
+                        textColor: textColor,
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -289,7 +271,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
               },
               const SizedBox(height: 16),
               // Date selector
-              _buildLabel('Date', textColor),
+              InputLabel(label: 'Date', color: textColor),
               GestureDetector(
                 onTap: () async {
                   final picked = await showDatePicker(
@@ -323,7 +305,6 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                         _formatDate(_selectedDate),
                         style: TextStyle(
                           color: textColor,
-
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -339,38 +320,25 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
               ),
               const SizedBox(height: 16),
               // Note
-              _buildLabel('Note (Optional)', textColor),
-              _buildTextField(_noteCtrl, 'Add a note', isDark, textColor),
+              InputLabel(label: 'Note (Optional)', color: textColor),
+              AppInputField(
+                controller: _noteCtrl,
+                hint: 'Add a note',
+                isDark: isDark,
+                textColor: textColor,
+              ),
               const SizedBox(height: 28),
               // Save Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _save,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.neonPurple,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: Text(
-                    widget.editExpense != null
-                        ? 'Update Expense'
-                        : 'Add Expense',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
+              AppButton(
+                text: widget.editExpense != null
+                    ? 'Update Expense'
+                    : 'Add Expense',
+                onPressed: _save,
               ),
             ],
           ),
         ),
-      ),
+      ],
     );
   }
 
@@ -402,66 +370,6 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
       );
     }
     Navigator.pop(context);
-  }
-
-  Widget _buildLabel(String label, Color color) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w500,
-          color: color.withValues(alpha: 0.6),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextField(
-    TextEditingController controller,
-    String hint,
-    bool isDark,
-    Color textColor, {
-    TextInputType? keyboardType,
-    String? prefixText,
-    double fontSize = 15,
-    FontWeight fontWeight = FontWeight.w500,
-    String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      validator: validator,
-      style: TextStyle(
-        color: textColor,
-        fontSize: fontSize,
-        fontWeight: fontWeight,
-      ),
-      decoration: InputDecoration(
-        hintText: hint,
-        prefixText: prefixText,
-        prefixStyle: TextStyle(
-          color: textColor,
-          fontSize: fontSize,
-          fontWeight: fontWeight,
-        ),
-        hintStyle: TextStyle(
-          color: textColor.withValues(alpha: 0.3),
-          fontSize: fontSize,
-        ),
-        filled: true,
-        fillColor: isDark ? AppTheme.darkSurface : const Color(0xFFF5F5FA),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide.none,
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 14,
-        ),
-      ),
-    );
   }
 
   String _formatDate(DateTime date) {
