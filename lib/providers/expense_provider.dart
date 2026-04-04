@@ -210,4 +210,24 @@ class ExpenseProvider extends ChangeNotifier {
     await _saveCustomCategories();
     notifyListeners();
   }
+
+  // ── Budget Goal ─────────────────────────────────────────────────────────
+  // Stored per month key in SharedPreferences: "goal_2026-04" = "800.0"
+  Future<double?> getGoalForMonth(String mKey) async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString('goal_$mKey');
+    return raw != null ? double.tryParse(raw) : null;
+  }
+
+  Future<void> setGoalForMonth(double amount, String mKey) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('goal_$mKey', amount.toString());
+    notifyListeners();
+  }
+
+  Future<void> removeGoalForMonth(String mKey) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('goal_$mKey');
+    notifyListeners();
+  }
 }
