@@ -1,3 +1,4 @@
+import 'package:expense_tracker/widgets/common/app_sheet.dart';
 import 'package:expense_tracker/widgets/balance_card.dart';
 import 'package:expense_tracker/widgets/expense_list_item.dart';
 import 'package:flutter/material.dart';
@@ -292,7 +293,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ExpenseProvider provider,
   ) async {
     final isDark = provider.isDarkMode;
-    final bg = isDark ? AppTheme.darkCard : Colors.white;
     final textColor = isDark ? AppTheme.lightText : const Color(0xFF1A1A2E);
     final subColor = isDark ? AppTheme.subText : Colors.grey[500]!;
 
@@ -304,171 +304,150 @@ class _DashboardScreenState extends State<DashboardScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => Container(
+      builder: (_) => AppSheet(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Select Month',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
+              color: textColor,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Browse any month\'s balance & expenses',
+            style: TextStyle(fontSize: 13, color: subColor),
+          ),
+          const SizedBox(height: 16),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 320),
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: months.length,
+              itemBuilder: (ctx, i) {
+                final mKey = months[i];
+                final isCurrentMonth = mKey == provider.currentMonthKey;
+                final isSelected = mKey == _activeMonthKey(provider);
+                final date = DateTime.parse('$mKey-01');
+                final label = DateFormat('MMMM yyyy').format(date);
+                final totalExp = provider.getTotalExpensesForMonth(mKey);
+                final income = provider.getIncomeForMonth(mKey);
+                final fmt = NumberFormat.currency(
+                  symbol: '\$',
+                  decimalDigits: 0,
+                );
 
-          children: [
-            //
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: isDark ? Colors.white24 : Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'Select Month',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w500,
-                color: textColor,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Browse any month\'s balance & expenses',
-              style: TextStyle(fontSize: 13, color: subColor),
-            ),
-            const SizedBox(height: 16),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 320),
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: months.length,
-                itemBuilder: (ctx, i) {
-                  final mKey = months[i];
-                  final isCurrentMonth = mKey == provider.currentMonthKey;
-                  final isSelected = mKey == _activeMonthKey(provider);
-                  final date = DateTime.parse('$mKey-01');
-                  final label = DateFormat('MMMM yyyy').format(date);
-                  final totalExp = provider.getTotalExpensesForMonth(mKey);
-                  final income = provider.getIncomeForMonth(mKey);
-                  final fmt = NumberFormat.currency(
-                    symbol: '\$',
-                    decimalDigits: 0,
-                  );
-
-                  return GestureDetector(
-                    onTap: () {
-                      provider.setDashboardMonth(isCurrentMonth ? null : mKey);
-                      Navigator.pop(context);
-                    },
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 180),
-                      margin: const EdgeInsets.only(bottom: 8),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 13,
-                      ),
-                      decoration: BoxDecoration(
-                        gradient: isSelected
-                            ? const LinearGradient(
-                                colors: [
-                                  AppTheme.neonPurple,
-                                  AppTheme.neonPink,
-                                ],
-                              )
-                            : null,
-                        color: isSelected
-                            ? null
-                            : (isDark
-                                  ? AppTheme.darkSurface
-                                  : const Color(0xFFF5F5FA)),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      label,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 15,
-                                        color: isSelected
-                                            ? Colors.white
-                                            : textColor,
-                                      ),
-                                    ),
-                                    if (isCurrentMonth) ...[
-                                      const SizedBox(width: 8),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 7,
-                                          vertical: 2,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: isSelected
-                                              ? Colors.white.withValues(
-                                                  alpha: 0.25,
-                                                )
-                                              : AppTheme.safeGreen.withValues(
-                                                  alpha: 0.15,
-                                                ),
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          'Current',
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.w500,
-                                            color: isSelected
-                                                ? Colors.white
-                                                : AppTheme.safeGreen,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                                if (totalExp > 0 || income > 0)
+                return GestureDetector(
+                  onTap: () {
+                    provider.setDashboardMonth(isCurrentMonth ? null : mKey);
+                    Navigator.pop(context);
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 13,
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: isSelected
+                          ? const LinearGradient(
+                              colors: [
+                                AppTheme.neonPurple,
+                                AppTheme.neonPink,
+                              ],
+                            )
+                          : null,
+                      color: isSelected
+                          ? null
+                          : (isDark
+                                ? AppTheme.darkSurface
+                                : const Color(0xFFF5F5FA)),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
                                   Text(
-                                    income > 0
-                                        ? '${fmt.format(totalExp)} spent · ${fmt.format(income)} income'
-                                        : '${fmt.format(totalExp)} spent',
+                                    label,
                                     style: TextStyle(
-                                      fontSize: 12,
                                       fontWeight: FontWeight.w500,
+                                      fontSize: 15,
                                       color: isSelected
-                                          ? Colors.white.withValues(alpha: 0.75)
-                                          : subColor,
+                                          ? Colors.white
+                                          : textColor,
                                     ),
                                   ),
-                              ],
-                            ),
+                                  if (isCurrentMonth) ...[
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 7,
+                                        vertical: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: isSelected
+                                            ? Colors.white.withValues(
+                                                alpha: 0.25,
+                                              )
+                                            : AppTheme.safeGreen.withValues(
+                                                alpha: 0.15,
+                                              ),
+                                        borderRadius: BorderRadius.circular(
+                                          8,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'Current',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w500,
+                                          color: isSelected
+                                              ? Colors.white
+                                              : AppTheme.safeGreen,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                              if (totalExp > 0 || income > 0)
+                                Text(
+                                  income > 0
+                                      ? '${fmt.format(totalExp)} spent · ${fmt.format(income)} income'
+                                      : '${fmt.format(totalExp)} spent',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: isSelected
+                                        ? Colors.white.withValues(alpha: 0.75)
+                                        : subColor,
+                                  ),
+                                ),
+                            ],
                           ),
-                          if (isSelected)
-                            const Icon(
-                              Icons.check_rounded,
-                              color: Colors.white,
-                              size: 18,
-                            ),
-                        ],
-                      ),
+                        ),
+                        if (isSelected)
+                          const Icon(
+                            Icons.check_rounded,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                      ],
                     ),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
