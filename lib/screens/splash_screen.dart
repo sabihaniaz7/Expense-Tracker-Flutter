@@ -192,7 +192,7 @@ class _SplashScreenState extends State<SplashScreen>
                       'Sabiha Niaz',
                       style: TextStyle(
                         fontSize: 16,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w500,
                         color: AppTheme.lightText,
                         letterSpacing: 0.5,
                       ),

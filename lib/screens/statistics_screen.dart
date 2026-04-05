@@ -30,9 +30,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<ExpenseProvider>();
     final isDark = provider.isDarkMode;
-    final textColor = isDark ? AppTheme.lightText : const Color(0xFF1A1A2E);
-    final subColor = isDark ? AppTheme.subText : Colors.grey[500]!;
-    final cardColor = isDark ? AppTheme.darkCard : Colors.white;
+    final textColor = isDark ? AppTheme.lightText : AppTheme.lightPrimaryText;
+    final subColor = isDark ? AppTheme.subText : AppTheme.lightSubText;
+    final cardColor = isDark ? AppTheme.darkCard : AppTheme.lightSurface;
     final months = provider.availableMonths;
     final fmt = NumberFormat.currency(symbol: '\$', decimalDigits: 0);
 
@@ -72,29 +72,29 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
     return SafeArea(
       child: Scaffold(
-        backgroundColor: isDark ? AppTheme.darkBg : const Color(0xFFF5F5FA),
+        backgroundColor: isDark ? AppTheme.darkBg : AppTheme.lightBg,
         body: CustomScrollView(
           slivers: [
             SliverAppBar(
               pinned: true,
-              backgroundColor: isDark
-                  ? AppTheme.darkBg
-                  : const Color(0xFFF5F5FA),
+              backgroundColor: isDark ? AppTheme.darkBg : AppTheme.lightBg,
               title: Text(
                 'Statistics',
                 style: TextStyle(
                   color: textColor,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 24,
+                  fontWeight: FontWeight.w500,
+                  fontSize: AppTheme.fs24,
                 ),
               ),
             ),
             // Month Picker
             SliverToBoxAdapter(
               child: SizedBox(
-                height: 44,
+                height: AppTheme.sp44,
                 child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppTheme.sp20,
+                  ),
                   scrollDirection: Axis.horizontal,
                   itemCount: months.length,
                   itemBuilder: (context, i) {
@@ -109,14 +109,13 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         _touchedIndex = -1;
                       }),
                       child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        margin: const EdgeInsets.only(right: 8),
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        duration: AppTheme.durStandard,
+                        margin: const EdgeInsets.only(right: AppTheme.sp8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppTheme.sp16,
+                        ),
                         decoration: BoxDecoration(
-                          // color: isSelected
-                          //     ? AppTheme.neonPurple
-                          //     : (isDark ? AppTheme.darkCard : Colors.white),
-                          borderRadius: BorderRadius.circular(22),
+                          borderRadius: BorderRadius.circular(AppTheme.rad22),
                           gradient: isSelected
                               ? const LinearGradient(
                                   colors: [
@@ -127,14 +126,16 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                               : null,
                           color: isSelected
                               ? null
-                              : (isDark ? AppTheme.darkCard : Colors.white),
+                              : (isDark
+                                    ? AppTheme.darkCard
+                                    : AppTheme.lightSurface),
                           boxShadow: isSelected
                               ? [
                                   BoxShadow(
                                     color: AppTheme.neonPurple.withValues(
                                       alpha: 0.35,
                                     ),
-                                    blurRadius: 10,
+                                    blurRadius: AppTheme.rad10,
                                     offset: const Offset(0, 3),
                                   ),
                                 ]
@@ -145,9 +146,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           child: Text(
                             label,
                             style: TextStyle(
-                              color: isSelected ? Colors.white : subColor,
+                              color: isSelected
+                                  ? AppTheme.lightSurface
+                                  : subColor,
                               fontWeight: FontWeight.w500,
-                              fontSize: 13,
+                              fontSize: AppTheme.fs13,
                             ),
                           ),
                         ),
@@ -160,17 +163,21 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             if (_selectedMonth == null || breakdown.isEmpty)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 60),
+                  padding: const EdgeInsets.symmetric(vertical: AppTheme.sp60),
                   child: Column(
                     children: [
-                      Icon(CupertinoIcons.chart_pie, size: 56, color: subColor),
-                      const SizedBox(height: 16),
-                      Text(
-                        'No data for this month',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                          color: textColor,
+                      const SizedBox(height: AppTheme.sp60),
+                      Icon(CupertinoIcons.doc_chart, size: 80, color: subColor),
+                      const SizedBox(height: AppTheme.sp16),
+                      Center(
+                        child: Text(
+                          'No data available.\nAdd expenses to see statistics.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: AppTheme.fs18,
+                            fontWeight: FontWeight.w500,
+                            color: textColor,
+                          ),
                         ),
                       ),
                     ],
@@ -181,11 +188,16 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               // Pie Chart card
               SliverToBoxAdapter(
                 child: Container(
-                  margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                  padding: const EdgeInsets.all(24),
+                  margin: const EdgeInsets.fromLTRB(
+                    AppTheme.sp20,
+                    AppTheme.sp20,
+                    AppTheme.sp20,
+                    0,
+                  ),
+                  padding: const EdgeInsets.all(AppTheme.sp24),
                   decoration: BoxDecoration(
                     color: cardColor,
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(AppTheme.rad24),
                   ),
                   child: Column(
                     children: [
@@ -197,7 +209,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                               'MMMM yyyy',
                             ).format(DateTime.parse('$_selectedMonth-01')),
                             style: TextStyle(
-                              fontSize: 20,
+                              fontSize: AppTheme.fs20,
                               fontWeight: FontWeight.w500,
                               color: textColor,
                             ),
@@ -206,17 +218,17 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                '+ ${fmt.format(income)}',
+                                income > 0 ? '+ ${fmt.format(income)}' : '',
                                 style: TextStyle(
-                                  fontSize: 16,
+                                  fontSize: AppTheme.fs16,
                                   fontWeight: FontWeight.w500,
                                   color: AppTheme.safeGreen,
                                 ),
                               ),
                               Text(
                                 '- ${fmt.format(total)}',
-                                style: const TextStyle(
-                                  fontSize: 16,
+                                style: TextStyle(
+                                  fontSize: AppTheme.fs16,
                                   fontWeight: FontWeight.w500,
                                   color: AppTheme.dangerRed,
                                 ),
@@ -225,9 +237,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: AppTheme.sp20),
                       SizedBox(
-                        height: 220,
+                        height: AppTheme.sp220,
                         child: Stack(
                           alignment: Alignment.center,
                           children: [
@@ -247,11 +259,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                     title: isTouched
                                         ? '${(val / (income > 0 ? income : total) * 100).toStringAsFixed(1)}%'
                                         : '',
-                                    radius: isTouched ? 90 : 75,
+                                    radius: isTouched ? 95 : 80,
+                                    titlePositionPercentageOffset: 0.55,
                                     titleStyle: const TextStyle(
-                                      color: Colors.white,
+                                      color: Colors.black,
                                       fontWeight: FontWeight.w500,
-                                      fontSize: 14,
+                                      fontSize: AppTheme.fs14,
                                     ),
                                   );
                                 }).toList(),
@@ -272,7 +285,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                 ),
                                 borderData: FlBorderData(show: false),
                                 centerSpaceRadius: 50,
-                                sectionsSpace: 3,
+                                sectionsSpace: 2,
                               ),
                             ),
                             // Centre label
@@ -282,7 +295,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                 Text(
                                   centerTop,
                                   style: TextStyle(
-                                    fontSize: 18,
+                                    fontSize: AppTheme.fs18,
                                     fontWeight: FontWeight.w500,
                                     color: textColor,
                                   ),
@@ -290,7 +303,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                 Text(
                                   centerBottom,
                                   style: TextStyle(
-                                    fontSize: 12,
+                                    fontSize: AppTheme.fs12,
                                     fontWeight: FontWeight.w500,
                                     color: subColor,
                                   ),
@@ -369,11 +382,16 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               // Category breakdown list
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
+                  padding: const EdgeInsets.fromLTRB(
+                    AppTheme.sp20,
+                    AppTheme.sp12,
+                    AppTheme.sp20,
+                    AppTheme.sp4,
+                  ),
                   child: Text(
                     'Breakdown',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: AppTheme.fs16,
                       fontWeight: FontWeight.w500,
                       color: textColor,
                     ),
@@ -392,13 +410,18 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         setState(() => _touchedIndex = isTouched ? -1 : i),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
-                      margin: const EdgeInsets.fromLTRB(20, 0, 20, 10),
-                      padding: const EdgeInsets.all(16),
+                      margin: const EdgeInsets.fromLTRB(
+                        AppTheme.sp20,
+                        0,
+                        AppTheme.sp20,
+                        AppTheme.sp10,
+                      ),
+                      padding: const EdgeInsets.all(AppTheme.sp16),
                       decoration: BoxDecoration(
                         color: isTouched
                             ? color.withValues(alpha: 0.1)
                             : cardColor,
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(AppTheme.rad16),
                         border: Border.all(
                           color: isTouched
                               ? color.withValues(alpha: 0.4)
@@ -408,15 +431,17 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       child: Row(
                         children: [
                           Container(
-                            width: 40,
-                            height: 40,
+                            width: AppTheme.sp40,
+                            height: AppTheme.sp40,
                             decoration: BoxDecoration(
                               color: color.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(
+                                AppTheme.rad10,
+                              ),
                             ),
                             child: Center(child: Text(emoji)),
                           ),
-                          const SizedBox(width: 12),
+                          const SizedBox(width: AppTheme.sp12),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -430,7 +455,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                       style: TextStyle(
                                         fontWeight: FontWeight.w500,
                                         color: textColor,
-                                        fontSize: 15,
+                                        fontSize: AppTheme.fs15,
                                       ),
                                     ),
                                     Text(
@@ -438,14 +463,16 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                       style: TextStyle(
                                         fontWeight: FontWeight.w500,
                                         color: textColor,
-                                        fontSize: 15,
+                                        fontSize: AppTheme.fs15,
                                       ),
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 6),
+                                const SizedBox(height: AppTheme.sp6),
                                 ClipRRect(
-                                  borderRadius: BorderRadius.circular(4),
+                                  borderRadius: BorderRadius.circular(
+                                    AppTheme.rad4,
+                                  ),
                                   child: LinearProgressIndicator(
                                     value: pct.toDouble(),
                                     backgroundColor: color.withValues(
@@ -455,11 +482,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                     minHeight: 5,
                                   ),
                                 ),
-                                const SizedBox(height: 4),
+                                const SizedBox(height: AppTheme.sp4),
                                 Text(
                                   '${(pct * 100).toStringAsFixed(1)}%',
                                   style: TextStyle(
-                                    fontSize: 11,
+                                    fontSize: AppTheme.fs11,
                                     color: subColor,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -473,7 +500,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   );
                 }, childCount: sortedBreakdown.length),
               ),
-              const SliverToBoxAdapter(child: SizedBox(height: 100)),
+              const SliverToBoxAdapter(
+                child: SizedBox(height: AppTheme.sp90 + AppTheme.sp10),
+              ),
             ],
           ],
         ),

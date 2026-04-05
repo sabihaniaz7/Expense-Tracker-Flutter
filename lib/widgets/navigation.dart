@@ -90,7 +90,7 @@ class _MainNavigationState extends State<MainNavigation> {
                   onTap: () => _onNavTapped(1),
                 ),
                 _NavItem(
-                  icon: CupertinoIcons.list_bullet,
+                  icon: Icons.history,
                   label: 'History',
                   isActive: _currentIndex == 2,
                   activeColor: activeColor,
@@ -129,7 +129,7 @@ class _NavItem extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
         decoration: BoxDecoration(
           color: isActive
               ? activeColor.withValues(alpha: 0.1)
@@ -145,8 +145,8 @@ class _NavItem extends StatelessWidget {
               label,
               style: TextStyle(
                 color: isActive ? activeColor : inactiveColor,
-                fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                fontSize: 12,
               ),
             ),
           ],

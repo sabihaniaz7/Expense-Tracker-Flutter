@@ -1,3 +1,4 @@
+import 'package:expense_tracker/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class InputLabel extends StatelessWidget {
@@ -13,11 +14,11 @@ class InputLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: AppTheme.sp8),
       child: Text(
         label,
         style: TextStyle(
-          fontSize: 13,
+          fontSize: AppTheme.fs13,
           fontWeight: FontWeight.w500,
           color: color.withValues(alpha: 0.6),
         ),
