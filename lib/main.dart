@@ -17,7 +17,11 @@ void main() async {
   Hive.registerAdapter(MonthlyIncomeAdapter());
 
   final provider = ExpenseProvider();
-  await provider.init();
+  try {
+    await provider.init();
+  } catch (e) {
+    provider.initializationError = 'Failed to initialize database: $e';
+  }
 
   runApp(
     ChangeNotifierProvider.value(

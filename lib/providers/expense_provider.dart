@@ -12,8 +12,15 @@ class ExpenseProvider extends ChangeNotifier {
   late Box<MonthlyIncome> _incomeBox;
   final _uuid = const Uuid();
   bool _isDarkMode = true;
+  String? _initializationError;
 
   bool get isDarkMode => _isDarkMode;
+  String? get initializationError => _initializationError;
+
+  set initializationError(String? value) {
+    _initializationError = value;
+    notifyListeners();
+  }
 
   void toggleTheme() {
     _isDarkMode = !_isDarkMode;
@@ -32,10 +39,14 @@ class ExpenseProvider extends ChangeNotifier {
   }
 
   Future<void> init() async {
-    _expenseBox = await Hive.openBox<Expense>('expenses');
-    _incomeBox = await Hive.openBox<MonthlyIncome>('incomes');
-    await _loadCustomCategories();
-    notifyListeners();
+    try {
+      _expenseBox = await Hive.openBox<Expense>('expenses');
+      _incomeBox = await Hive.openBox<MonthlyIncome>('incomes');
+      await _loadCustomCategories();
+      notifyListeners();
+    } catch (e) {
+      rethrow;
+    }
   }
 
   // Helper: Month key
@@ -127,17 +138,21 @@ class ExpenseProvider extends ChangeNotifier {
     DateTime? date,
     String note = '',
   }) async {
-    final expense = Expense(
-      id: _uuid.v4(),
-      title: title,
-      amount: amount,
-      category: category,
-      date: date ?? DateTime.now(),
-      note: note,
-      isIncome: false,
-    );
-    await _expenseBox.put(expense.id, expense);
-    notifyListeners();
+    try {
+      final expense = Expense(
+        id: _uuid.v4(),
+        title: title,
+        amount: amount,
+        category: category,
+        date: date ?? DateTime.now(),
+        note: note,
+        isIncome: false,
+      );
+      await _expenseBox.put(expense.id, expense);
+      notifyListeners();
+    } catch (e) {
+      rethrow;
+    }
   }
 
   // Edit Expense
@@ -149,37 +164,49 @@ class ExpenseProvider extends ChangeNotifier {
     required DateTime date,
     String note = '',
   }) async {
-    final expense = _expenseBox.get(id);
-    if (expense != null) {
-      expense.title = title;
-      expense.amount = amount;
-      expense.category = category;
-      expense.date = date;
-      expense.note = note;
-      await expense.save();
-      notifyListeners();
+    try {
+      final expense = _expenseBox.get(id);
+      if (expense != null) {
+        expense.title = title;
+        expense.amount = amount;
+        expense.category = category;
+        expense.date = date;
+        expense.note = note;
+        await expense.save();
+        notifyListeners();
+      }
+    } catch (e) {
+      rethrow;
     }
   }
 
   // Delete Expense
   Future<void> deleteExpense(String id) async {
-    await _expenseBox.delete(id);
-    notifyListeners();
+    try {
+      await _expenseBox.delete(id);
+      notifyListeners();
+    } catch (e) {
+      rethrow;
+    }
   }
 
   // set monthly Income
   Future<void> setMonthlyIncome(double amount, {String? mKey}) async {
-    final key = mKey ?? currentMonthKey;
-    final existing = _incomeBox.values.where((i) => i.monthKey == key);
-    if (existing.isNotEmpty) {
-      final item = existing.first;
-      item.amount = amount;
-      await item.save();
-    } else {
-      final income = MonthlyIncome(monthKey: key, amount: amount);
-      await _incomeBox.put(key, income);
+    try {
+      final key = mKey ?? currentMonthKey;
+      final existing = _incomeBox.values.where((i) => i.monthKey == key);
+      if (existing.isNotEmpty) {
+        final item = existing.first;
+        item.amount = amount;
+        await item.save();
+      } else {
+        final income = MonthlyIncome(monthKey: key, amount: amount);
+        await _incomeBox.put(key, income);
+      }
+      notifyListeners();
+    } catch (e) {
+      rethrow;
     }
-    notifyListeners();
   }
 
   // Custom Categories — persisted in SharedPreferences
@@ -187,13 +214,21 @@ class ExpenseProvider extends ChangeNotifier {
   List<String> get customCategories => List.unmodifiable(_customCategories);
 
   Future<void> _loadCustomCategories() async {
-    final prefs = await SharedPreferences.getInstance();
-    _customCategories = prefs.getStringList('custom_categories') ?? [];
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _customCategories = prefs.getStringList('custom_categories') ?? [];
+    } catch (e) {
+      rethrow;
+    }
   }
 
   Future<void> _saveCustomCategories() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('custom_categories', _customCategories);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList('custom_categories', _customCategories);
+    } catch (e) {
+      rethrow;
+    }
   }
 
   // Add Custom Category

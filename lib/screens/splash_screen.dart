@@ -1,6 +1,9 @@
 import 'package:expense_tracker/widgets/navigation.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import 'package:provider/provider.dart';
+import '../providers/expense_provider.dart';
+import '../utils/app_utils.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -18,6 +21,15 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
+
+    // Check for initialization error
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final error = context.read<ExpenseProvider>().initializationError;
+      if (error != null) {
+        AppUtils.showSnackbar(context, error, isError: true);
+      }
+    });
 
     _ctrl = AnimationController(
       vsync: this,

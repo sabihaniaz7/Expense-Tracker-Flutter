@@ -7,6 +7,7 @@ import '../theme/app_theme.dart';
 import 'package:provider/provider.dart';
 import '../providers/expense_provider.dart';
 import '../models/expense_model.dart';
+import '../utils/app_utils.dart';
 
 class AddExpenseSheet extends StatefulWidget {
   final Expense? editExpense;
@@ -236,16 +237,27 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                     ),
                     const SizedBox(width: 8),
                     GestureDetector(
-                      onTap: () {
+                      onTap: () async {
                         if (_customCatCtrl.text.trim().isNotEmpty) {
-                          provider.addCustomCategory(
-                            _customCatCtrl.text.trim(),
-                          );
-                          setState(() {
-                            _selectedCategory = _customCatCtrl.text.trim();
-                            _addingCustom = false;
-                          });
-                          _customCatCtrl.clear();
+                          try {
+                            await provider.addCustomCategory(
+                              _customCatCtrl.text.trim(),
+                            );
+                            if (!context.mounted) return;
+                            setState(() {
+                              _selectedCategory = _customCatCtrl.text.trim();
+                              _addingCustom = false;
+                            });
+                            _customCatCtrl.clear();
+                          } catch (e) {
+                            if (context.mounted) {
+                              AppUtils.showSnackbar(
+                                context,
+                                'Failed to add category',
+                                isError: true,
+                              );
+                            }
+                          }
                         }
                       },
                       child: Container(
@@ -280,6 +292,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                     firstDate: DateTime(2020),
                     lastDate: DateTime.now(),
                   );
+                  if (!context.mounted) return;
                   if (picked != null) setState(() => _selectedDate = picked);
                 },
                 child: Container(
@@ -342,7 +355,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
     );
   }
 
-  void _save() {
+  void _save() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -351,25 +364,31 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
     final amount = double.parse(_amountCtrl.text.trim().replaceAll(',', ''));
 
     final provider = context.read<ExpenseProvider>();
-    if (widget.editExpense != null) {
-      provider.editExpense(
-        id: widget.editExpense!.id,
-        title: title,
-        amount: amount,
-        category: _selectedCategory,
-        date: _selectedDate,
-        note: _noteCtrl.text.trim(),
-      );
-    } else {
-      provider.addExpense(
-        title: title,
-        amount: amount,
-        category: _selectedCategory,
-        date: _selectedDate,
-        note: _noteCtrl.text.trim(),
-      );
+    try {
+      if (widget.editExpense != null) {
+        await provider.editExpense(
+          id: widget.editExpense!.id,
+          title: title,
+          amount: amount,
+          category: _selectedCategory,
+          date: _selectedDate,
+          note: _noteCtrl.text.trim(),
+        );
+      } else {
+        await provider.addExpense(
+          title: title,
+          amount: amount,
+          category: _selectedCategory,
+          date: _selectedDate,
+          note: _noteCtrl.text.trim(),
+        );
+      }
+      if (mounted) Navigator.pop(context);
+    } catch (e) {
+      if (mounted) {
+        AppUtils.showSnackbar(context, 'Something went wrong', isError: true);
+      }
     }
-    Navigator.pop(context);
   }
 
   String _formatDate(DateTime date) {
@@ -455,9 +474,20 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
       ),
     );
     if (confirmed == true) {
-      await provider.deleteCustomCategory(name);
-      if (_selectedCategory == name) {
-        setState(() => _selectedCategory = 'Food & Drink');
+      try {
+        await provider.deleteCustomCategory(name);
+        if (!context.mounted) return;
+        if (_selectedCategory == name) {
+          setState(() => _selectedCategory = 'Food & Drink');
+        }
+      } catch (e) {
+        if (context.mounted) {
+          AppUtils.showSnackbar(
+            context,
+            'Failed to delete category',
+            isError: true,
+          );
+        }
       }
     }
   }
