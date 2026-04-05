@@ -32,9 +32,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<ExpenseProvider>();
     final isDark = provider.isDarkMode;
-    final textColor = isDark ? AppTheme.lightText : const Color(0xFF1A1A2E);
-    final cardColor = isDark ? AppTheme.darkCard : Colors.white;
-    final subColor = isDark ? AppTheme.subText : Colors.grey[500]!;
+    final textColor = isDark ? AppTheme.lightText : AppTheme.lightPrimaryText;
+    final cardColor = isDark ? AppTheme.darkCard : AppTheme.lightSurface;
+    final subColor = isDark ? AppTheme.subText : AppTheme.lightSubText;
 
     var allExpenses = provider.allExpenses;
     // Search by name or category or month name/year
@@ -61,19 +61,17 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
     return SafeArea(
       child: Scaffold(
-        backgroundColor: isDark ? AppTheme.darkBg : const Color(0xFFF5F5FA),
+        backgroundColor: isDark ? AppTheme.darkBg : AppTheme.lightBg,
         body: CustomScrollView(
           slivers: [
             SliverAppBar(
               pinned: true,
-              backgroundColor: isDark
-                  ? AppTheme.darkBg
-                  : const Color(0xFFF5F5FA),
+              backgroundColor: isDark ? AppTheme.darkBg : AppTheme.lightBg,
               title: Text(
                 'History',
                 style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 24,
+                  fontWeight: FontWeight.w500,
+                  fontSize: AppTheme.fs24,
                   color: textColor,
                 ),
               ),
@@ -81,22 +79,34 @@ class _HistoryScreenState extends State<HistoryScreen> {
             // Search Bar
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                padding: const EdgeInsets.fromLTRB(
+                  AppTheme.sp20,
+                  0,
+                  AppTheme.sp20,
+                  AppTheme.sp16,
+                ),
                 child: TextField(
                   controller: _searchController,
                   onChanged: (v) => setState(() => _searchQuery = v),
-                  style: TextStyle(color: textColor, fontSize: 14),
+                  style: TextStyle(color: textColor, fontSize: AppTheme.fs14),
                   decoration: InputDecoration(
                     hintText: 'Search by name, category or month',
-                    hintStyle: TextStyle(color: subColor, fontSize: 13),
+                    hintStyle: TextStyle(
+                      color: subColor,
+                      fontSize: AppTheme.fs13,
+                    ),
                     prefixIcon: Icon(
                       Icons.search_rounded,
                       color: subColor,
-                      size: 20,
+                      size: AppTheme.sp20,
                     ),
                     suffixIcon: _searchQuery.isNotEmpty
                         ? IconButton(
-                            icon: Icon(Icons.close, color: subColor, size: 18),
+                            icon: Icon(
+                              Icons.close,
+                              color: subColor,
+                              size: AppTheme.sp18,
+                            ),
                             onPressed: () {
                               _searchController.clear();
                               setState(() => _searchQuery = '');
@@ -106,12 +116,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     filled: true,
                     fillColor: cardColor,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(AppTheme.rad14),
                       borderSide: BorderSide.none,
                     ),
                     contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
+                      horizontal: AppTheme.sp16,
+                      vertical: AppTheme.sp12,
                     ),
                   ),
                 ),
@@ -121,21 +131,23 @@ class _HistoryScreenState extends State<HistoryScreen> {
             sortedMonths.isEmpty
                 ? SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 60),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppTheme.sp60,
+                      ),
                       child: Column(
                         children: [
                           Icon(
                             CupertinoIcons.doc_text_search,
-                            size: 56,
+                            size: AppTheme.sp56,
                             color: subColor,
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: AppTheme.sp16),
                           Text(
                             _searchQuery.isNotEmpty
                                 ? 'No results found'
                                 : 'No expenses yet',
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: AppTheme.fs18,
                               fontWeight: FontWeight.w500,
                               color: textColor,
                             ),
@@ -154,7 +166,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       final isExpanded = _expandedMonths.contains(month);
 
                       return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppTheme.sp20,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -168,10 +182,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 }
                               }),
                               child: Container(
-                                margin: const EdgeInsets.only(bottom: 12),
+                                margin: const EdgeInsets.only(
+                                  bottom: AppTheme.sp12,
+                                ),
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 12,
+                                  horizontal: AppTheme.sp16,
+                                  vertical: AppTheme.sp12,
                                 ),
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
@@ -187,11 +203,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                             ),
                                           ]
                                         : [
-                                            const Color(0xFFEEECFF),
-                                            const Color(0xFFF3F0FF),
+                                            AppTheme.lightAccent,
+                                            AppTheme.lightAccentSecondary,
                                           ],
                                   ),
-                                  borderRadius: BorderRadius.circular(16),
+                                  borderRadius: BorderRadius.circular(
+                                    AppTheme.rad16,
+                                  ),
                                   border: Border.all(
                                     color: isDark
                                         ? AppTheme.neonPurple.withValues(
@@ -206,8 +224,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 child: Row(
                                   children: [
                                     Container(
-                                      width: 36,
-                                      height: 36,
+                                      width: AppTheme.sp36,
+                                      height: AppTheme.sp36,
                                       decoration: BoxDecoration(
                                         gradient: LinearGradient(
                                           begin: Alignment.topLeft,
@@ -221,19 +239,22 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                             ),
                                           ],
                                         ),
-                                        borderRadius: BorderRadius.circular(10),
+                                        borderRadius: BorderRadius.circular(
+                                          AppTheme.rad10,
+                                        ),
                                       ),
                                       child: Center(
                                         child: Icon(
                                           Icons.calendar_month_rounded,
                                           color: isDark
-                                              ? Colors.white70
+                                              ? AppTheme.lightSurface
+                                                    .withValues(alpha: 0.7)
                                               : Colors.black54,
-                                          size: 18,
+                                          size: AppTheme.sp18,
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(width: 12),
+                                    const SizedBox(width: AppTheme.sp12),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment:
@@ -244,13 +265,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                             style: TextStyle(
                                               fontWeight: FontWeight.w500,
                                               color: textColor,
-                                              fontSize: 17,
+                                              fontSize: AppTheme.fs17,
                                             ),
                                           ),
                                           Text(
                                             '${expenses.length} transactions',
                                             style: TextStyle(
-                                              fontSize: 12,
+                                              fontSize: AppTheme.fs12,
                                               color: subColor,
                                               fontWeight: FontWeight.w500,
                                             ),
@@ -263,19 +284,17 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w500,
                                         color: AppTheme.dangerRed,
-                                        fontSize: 15,
+                                        fontSize: AppTheme.fs15,
                                       ),
                                     ),
-                                    const SizedBox(width: 8),
+                                    const SizedBox(width: AppTheme.sp8),
                                     AnimatedRotation(
                                       turns: isExpanded ? 0.5 : 0,
-                                      duration: const Duration(
-                                        milliseconds: 200,
-                                      ),
+                                      duration: AppTheme.durStandard,
                                       child: Icon(
                                         Icons.keyboard_arrow_down_rounded,
                                         color: subColor,
-                                        size: 18,
+                                        size: AppTheme.sp18,
                                       ),
                                     ),
                                   ],
@@ -293,14 +312,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 ),
                               ),
 
-                            const SizedBox(height: 8),
+                            const SizedBox(height: AppTheme.sp8),
                           ],
                         ),
                       );
                     }, childCount: sortedMonths.length),
                   ),
 
-            const SliverToBoxAdapter(child: SizedBox(height: 100)),
+            const SliverToBoxAdapter(
+              child: SizedBox(height: AppTheme.sp60 + AppTheme.sp40),
+            ),
           ],
         ),
       ),

@@ -31,47 +31,41 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<ExpenseProvider>();
     final isDark = provider.isDarkMode;
-    final textColor = isDark ? AppTheme.lightText : const Color(0xFF1A1A2E);
-    final subColor = isDark ? AppTheme.subText : Colors.grey[500]!;
+    final textColor = isDark ? AppTheme.lightText : AppTheme.lightPrimaryText;
+    final subColor = isDark ? AppTheme.subText : AppTheme.lightSubText;
     final mKey = _activeMonthKey(provider);
     final isBrowsingPast = _isBrowsingPast(provider);
     final expenses = provider.getExpenseForMonth(mKey);
     final date = DateTime.parse('$mKey-01');
     final fullMonth = DateFormat('MMMM').format(date);
-    final monthDisplay = fullMonth.length > 5
-        ? DateFormat('MMM').format(date)
-        : fullMonth;
+    final monthDisplay =
+        fullMonth.length > 5 ? DateFormat('MMM').format(date) : fullMonth;
     final year = DateFormat('yyyy').format(date);
     final monthLabel = '$monthDisplay $year';
     return SafeArea(
       child: Scaffold(
-        backgroundColor: isDark ? AppTheme.darkBg : const Color(0xFFF5F5FA),
+        backgroundColor: isDark ? AppTheme.darkBg : AppTheme.lightBg,
         body: CustomScrollView(
           slivers: [
             // App Bar
             SliverAppBar(
               pinned: true,
-              backgroundColor: isDark
-                  ? AppTheme.darkBg
-                  : const Color(0xFFF5F5FA),
-              toolbarHeight: 56,
-              titleSpacing: 20,
+              backgroundColor: isDark ? AppTheme.darkBg : AppTheme.lightBg,
+              toolbarHeight: AppTheme.sp56,
+              titleSpacing: AppTheme.sp20,
               title: GestureDetector(
                 onTap: () => _pickMonth(context, provider),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
+                    horizontal: AppTheme.sp10,
+                    vertical: AppTheme.sp6,
                   ),
                   decoration: BoxDecoration(
                     color: AppTheme.neonPurple,
-                    //  isDark
-                    //     ? Colors.white.withValues(alpha: 0.08)
-                    //     : Colors.black.withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(AppTheme.rad20),
                     border: Border.all(
                       color: isDark
-                          ? Colors.white.withValues(alpha: 0.12)
+                          ? AppTheme.lightSurface.withValues(alpha: 0.12)
                           : Colors.black.withValues(alpha: 0.08),
                       width: 1,
                     ),
@@ -82,18 +76,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Text(
                         monthLabel,
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: AppTheme.fs20,
                           fontWeight: FontWeight.w500,
                           color: textColor,
                         ),
                       ),
 
-                      const SizedBox(width: 2),
+                      const SizedBox(width: AppTheme.sp4 / 2),
                       // DropDown arrow
                       Icon(
                         Icons.arrow_drop_down_rounded,
-                        size: 20,
-                        color: isDark ? Colors.white54 : Colors.black38,
+                        size: AppTheme.sp20,
+                        color: isDark
+                            ? AppTheme.lightSurface.withValues(alpha: 0.54)
+                            : Colors.black.withValues(alpha: 0.38),
                       ),
                     ],
                   ),
@@ -106,33 +102,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: Container(
                     margin: const EdgeInsets.only(
                       right: 0,
-                      top: 10,
-                      bottom: 10,
+                      top: AppTheme.sp10,
+                      bottom: AppTheme.sp10,
                     ),
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
+                      horizontal: AppTheme.sp12,
+                      vertical: AppTheme.sp6,
                     ),
                     decoration: BoxDecoration(
                       color: AppTheme.safeGreen.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(AppTheme.rad20),
                       border: Border.all(
                         color: AppTheme.safeGreen.withValues(alpha: 0.4),
                       ),
                     ),
-                    child: Row(
+                    child: const Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.attach_money,
                           color: AppTheme.safeGreen,
-                          size: 16,
+                          size: AppTheme.sp16,
                         ),
                         Text(
                           'Set Income',
                           style: TextStyle(
                             color: AppTheme.safeGreen,
                             fontWeight: FontWeight.w400,
-                            fontSize: 13,
+                            fontSize: AppTheme.fs13,
                           ),
                         ),
                       ],
@@ -143,7 +139,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 IconButton(
                   icon: Icon(
                     isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-                    color: isDark ? Colors.white60 : Colors.grey[600],
+                    color: isDark
+                        ? AppTheme.lightSurface.withValues(alpha: 0.6)
+                        : AppTheme.lightSubText,
                   ),
                   onPressed: () => provider.toggleTheme(),
                 ),
@@ -154,32 +152,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 4,
+                    horizontal: AppTheme.sp20,
+                    vertical: AppTheme.sp4,
                   ),
                   child: Row(
                     children: [
-                      // Icon(Icons.history_rounded, size: 14, color: subColor),
-                      // const SizedBox(width: 6),
                       Text(
                         'Browsing past month',
-                        style: TextStyle(fontSize: 12, color: subColor),
+                        style: TextStyle(
+                          fontSize: AppTheme.fs12,
+                          color: subColor,
+                        ),
                       ),
                       const Spacer(),
                       GestureDetector(
                         onTap: () => _resetToCurrentMonth(provider),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
+                            horizontal: AppTheme.sp10,
+                            vertical: AppTheme.sp4,
                           ),
                           decoration: BoxDecoration(
-                            color: isDark ? AppTheme.darkCard : Colors.white70,
-                            borderRadius: BorderRadius.circular(20),
+                            color: isDark
+                                ? AppTheme.darkCard
+                                : AppTheme.lightSurface.withValues(alpha: 0.7),
+                            borderRadius: BorderRadius.circular(AppTheme.rad20),
                             border: Border.all(
                               color: isDark
-                                  ? Colors.white.withValues(alpha: 0.05)
-                                  : Colors.grey.withValues(alpha: 0.1),
+                                  ? AppTheme.lightSurface.withValues(
+                                    alpha: 0.05,
+                                  )
+                                  : AppTheme.lightSubText.withValues(
+                                    alpha: 0.1,
+                                  ),
                             ),
                           ),
                           child: const Row(
@@ -187,7 +192,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               Text(
                                 'Back to current',
                                 style: TextStyle(
-                                  fontSize: 11,
+                                  fontSize: AppTheme.fs11,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -204,14 +209,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
             // Recent Expense Header
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 6, 20, 10),
+                padding: const EdgeInsets.fromLTRB(
+                  AppTheme.sp20,
+                  AppTheme.sp6,
+                  AppTheme.sp20,
+                  AppTheme.sp10,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       'Recent Expenses',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: AppTheme.fs18,
                         fontWeight: FontWeight.w500,
                         color: textColor,
                       ),
@@ -220,7 +230,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       '${expenses.length} transactions',
                       style: TextStyle(
                         color: subColor,
-                        fontSize: 13,
+                        fontSize: AppTheme.fs13,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -232,30 +242,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
             expenses.isEmpty
                 ? SliverToBoxAdapter(child: _EmptyState(isDark: isDark))
                 : SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      final exp = expenses[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: ExpenseListItem(
-                          expense: exp,
-                          onEdit: () => _showEdit(context, exp),
-                          onDelete: () => provider.deleteExpense(exp.id),
-                        ),
-                      );
-                    }, childCount: expenses.length),
-                  ),
-            const SliverToBoxAdapter(child: SizedBox(height: 100)),
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final exp = expenses[index];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppTheme.sp20,
+                      ),
+                      child: ExpenseListItem(
+                        expense: exp,
+                        onEdit: () => _showEdit(context, exp),
+                        onDelete: () => provider.deleteExpense(exp.id),
+                      ),
+                    );
+                  }, childCount: expenses.length),
+                ),
+            const SliverToBoxAdapter(
+              child: SizedBox(height: AppTheme.sp60 + AppTheme.sp40),
+            ),
           ],
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () => _showAddExpense(context, mKey),
           backgroundColor: AppTheme.neonPurple,
-          foregroundColor: Colors.white,
+          foregroundColor: AppTheme.lightSurface,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(AppTheme.rad18),
           ),
           elevation: 8,
-          child: Icon(Icons.add_rounded, size: 28),
+          child: const Icon(Icons.add_rounded, size: AppTheme.sp28),
         ),
       ),
     );
@@ -305,22 +319,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => AppSheet(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+        padding: const EdgeInsets.fromLTRB(
+          AppTheme.sp20,
+          AppTheme.sp16,
+          AppTheme.sp20,
+          AppTheme.sp32,
+        ),
         children: [
           Text(
             'Select Month',
             style: TextStyle(
-              fontSize: 20,
+              fontSize: AppTheme.fs20,
               fontWeight: FontWeight.w500,
               color: textColor,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: AppTheme.sp4),
           Text(
             'Browse any month\'s balance & expenses',
-            style: TextStyle(fontSize: 13, color: subColor),
+            style: TextStyle(fontSize: AppTheme.fs13, color: subColor),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppTheme.sp16),
           ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 320),
             child: ListView.builder(
@@ -345,11 +364,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Navigator.pop(context);
                   },
                   child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
-                    margin: const EdgeInsets.only(bottom: 8),
+                    duration: AppTheme.durFast,
+                    margin: const EdgeInsets.only(bottom: AppTheme.sp8),
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 13,
+                      horizontal: AppTheme.sp16,
+                      vertical: AppTheme.sp13, // need sp13 in AppTheme
                     ),
                     decoration: BoxDecoration(
                       gradient: isSelected
@@ -364,8 +383,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ? null
                           : (isDark
                                 ? AppTheme.darkSurface
-                                : const Color(0xFFF5F5FA)),
-                      borderRadius: BorderRadius.circular(14),
+                                : AppTheme.lightBg),
+                      borderRadius: BorderRadius.circular(AppTheme.rad14),
                     ),
                     child: Row(
                       children: [
@@ -379,38 +398,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     label,
                                     style: TextStyle(
                                       fontWeight: FontWeight.w500,
-                                      fontSize: 15,
+                                      fontSize: AppTheme.fs15,
                                       color: isSelected
-                                          ? Colors.white
+                                          ? AppTheme.lightSurface
                                           : textColor,
                                     ),
                                   ),
                                   if (isCurrentMonth) ...[
-                                    const SizedBox(width: 8),
+                                    const SizedBox(width: AppTheme.sp8),
                                     Container(
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 7,
-                                        vertical: 2,
+                                        vertical: AppTheme.rad2,
                                       ),
                                       decoration: BoxDecoration(
                                         color: isSelected
-                                            ? Colors.white.withValues(
+                                            ? AppTheme.lightSurface.withValues(
                                                 alpha: 0.25,
                                               )
                                             : AppTheme.safeGreen.withValues(
                                                 alpha: 0.15,
                                               ),
                                         borderRadius: BorderRadius.circular(
-                                          8,
+                                          AppTheme.rad8,
                                         ),
                                       ),
                                       child: Text(
                                         'Current',
                                         style: TextStyle(
-                                          fontSize: 10,
+                                          fontSize: AppTheme.fs10,
                                           fontWeight: FontWeight.w500,
                                           color: isSelected
-                                              ? Colors.white
+                                              ? AppTheme.lightSurface
                                               : AppTheme.safeGreen,
                                         ),
                                       ),
@@ -424,10 +443,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       ? '${fmt.format(totalExp)} spent · ${fmt.format(income)} income'
                                       : '${fmt.format(totalExp)} spent',
                                   style: TextStyle(
-                                    fontSize: 12,
+                                    fontSize: AppTheme.fs12,
                                     fontWeight: FontWeight.w500,
                                     color: isSelected
-                                        ? Colors.white.withValues(alpha: 0.75)
+                                        ? AppTheme.lightSurface.withValues(
+                                            alpha: 0.75,
+                                          )
                                         : subColor,
                                   ),
                                 ),
@@ -437,8 +458,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         if (isSelected)
                           const Icon(
                             Icons.check_rounded,
-                            color: Colors.white,
-                            size: 18,
+                            color: AppTheme.lightSurface,
+                            size: AppTheme.sp18, // need sp18 in AppTheme
                           ),
                       ],
                     ),
@@ -460,29 +481,33 @@ class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 50),
+      padding: const EdgeInsets.symmetric(vertical: AppTheme.sp50),
       child: Column(
         children: [
           Icon(
             Icons.receipt_long_rounded,
-            size: 80,
-            color: isDark ? Colors.white24 : Colors.grey[300],
+            size: AppTheme.sp80,
+            color: isDark
+                ? AppTheme.lightSurface.withValues(alpha: 0.24)
+                : AppTheme.lightSubText.withValues(alpha: 0.3),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: AppTheme.sp6),
           Text(
             "No Expenses Yet",
             style: TextStyle(
-              fontSize: 18,
+              fontSize: AppTheme.fs18,
               fontWeight: FontWeight.w500,
-              color: isDark ? AppTheme.lightText : const Color(0xFF1A1A2E),
+              color: isDark ? AppTheme.lightText : AppTheme.lightPrimaryText,
             ),
           ),
-          const SizedBox(height: 2),
+          const SizedBox(height: AppTheme.rad2),
           Text(
             'Tap the button below to add your first expense',
             style: TextStyle(
-              fontSize: 14,
-              color: isDark ? AppTheme.subText : Colors.grey[400],
+              fontSize: AppTheme.fs14,
+              color: isDark
+                  ? AppTheme.subText
+                  : AppTheme.lightSubText.withValues(alpha: 0.7),
             ),
           ),
         ],

@@ -17,9 +17,9 @@ class AppButton extends StatelessWidget {
     required this.onPressed,
     this.isExpanded = true,
     this.backgroundColor = AppTheme.neonPurple,
-    this.foregroundColor = Colors.white,
-    this.verticalPadding = 16,
-    this.fontSize = 16,
+    this.foregroundColor = AppTheme.lightSurface,
+    this.verticalPadding = AppTheme.sp16,
+    this.fontSize = AppTheme.fs16,
     this.fontWeight = FontWeight.w500,
   });
 
@@ -32,7 +32,7 @@ class AppButton extends StatelessWidget {
         foregroundColor: foregroundColor,
         padding: EdgeInsets.symmetric(vertical: verticalPadding),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppTheme.rad16),
         ),
         elevation: 0,
       ),

@@ -13,18 +13,18 @@ class MonthPill extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 4,
+        horizontal: AppTheme.sp10,
+        vertical: AppTheme.sp4,
       ),
       decoration: BoxDecoration(
         color: AppTheme.neonPurple,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppTheme.rad20),
       ),
       child: Text(
         label,
         style: const TextStyle(
-          color: Colors.white,
-          fontSize: 14,
+          color: AppTheme.lightSurface,
+          fontSize: AppTheme.fs14,
           fontWeight: FontWeight.w500,
         ),
       ),

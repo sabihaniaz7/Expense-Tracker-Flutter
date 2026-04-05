@@ -21,7 +21,7 @@ class AppInputField extends StatelessWidget {
     required this.textColor,
     this.keyboardType,
     this.prefixText,
-    this.fontSize = 15,
+    this.fontSize = AppTheme.fs15,
     this.fontWeight = FontWeight.w500,
     this.validator,
     this.autofocus = false,
@@ -52,14 +52,14 @@ class AppInputField extends StatelessWidget {
           fontSize: fontSize,
         ),
         filled: true,
-        fillColor: isDark ? AppTheme.darkSurface : const Color(0xFFF5F5FA),
+        fillColor: isDark ? AppTheme.darkSurface : AppTheme.lightBg,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppTheme.rad14),
           borderSide: BorderSide.none,
         ),
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 14,
+          horizontal: AppTheme.sp16,
+          vertical: AppTheme.sp14,
         ),
       ),
     );
