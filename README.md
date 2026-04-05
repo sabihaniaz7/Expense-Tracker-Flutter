@@ -6,17 +6,44 @@ A modern, aesthetic personal finance companion app built with Flutter. Designed 
 
 ## Preview
 
+### Smart Warning System (Dynamic Card Colors)
+
+| Under 70% | 70% - 89% |
+| :---: | :---: |
+| ![Balance Card Under 70%](images/card70.png) | ![Balance Card 70-89%](images/card70_89.png) |
+
+| 90% - 99% | 100%+ (Over Limit) |
+| :---: | :---: |
+| ![Balance Card 90-99%](images/card90_99.png) | ![Balance Card Over 100%](images/card100+.png) |
+
+| Add / Update Expense | Set Monthly Income |
+| :---: | :---: |
+| ![Add Update Expense Sheet](images/Add_Update_Expense.png) | ![Set Monthly Income Sheet](images/setIncome.png) |
+
+| Statistics Screen | Statistics Screen |
+| :---: | :---: |
+| ![Statistics Screen 1](images/statistics1.png) | ![Statistics Screen 2](images/statistics2.png) |
+
+| History Screen | History Screen (Empty) |
+| :---: | :---: |
+| ![History Screen](images/HistoryScreen.png) | ![History Screen Empty State](images/historyEmpty.png) |
+
+| Statistics (Empty) | Splash Screen |
+| :---: | :---: |
+| ![Statistics Screen Empty State](images/statisticsEmpty.png) | ![Splash Screen](images/splashScreen.png) |
+
 ## Features
 
-## Home Dashboard
+### Home Dashboard
+
+![Home Dashboard](images/card70.png)
 
 - **Smart Balance Card** showing remaining balance, income, and total expenses
 - **Month-switching** — tap the month title to browse any past month's data without leaving the dashboard
 - **Context-aware Set Income** — always sets income for the month currently being viewed
-- **"Browsing past month" banner** with one-tap return to current month
 - **Recent expenses list** filtered to the selected month
 
-### Smart Warning System
+#### Smart Warning System
 
 The balance card dynamically changes color based on spending level — no configuration needed:
 
@@ -27,15 +54,9 @@ The balance card dynamically changes color based on spending level — no config
 | 90% – 99%      | Orange glow          |
 | 100%+          | Red pulse            |
 
-### Budget Goal Feature
+#### Transaction Management
 
-- Set a monthly spending limit directly from the balance card
-- A dedicated progress bar tracks spending against the goal — separate from income
-- Turns red and shows "Over by $X" when the goal is exceeded
-- Tap the goal row to edit or remove it at any time
-- Goals are stored per month so each month has its own limit
-
-### Transaction Management
+![Add Expense](images/Add_Update_Expense.png)
 
 - Add expenses with title, amount, category, date, and optional note
 - Auto-date defaults to today (or last day of the viewed month when browsing past)
@@ -44,15 +65,19 @@ The balance card dynamically changes color based on spending level — no config
 - **9 default categories** with emoji icons: Food & Drink, Transport, Entertainment, Shopping, Bills, Health, Education, Travel, Others
 - **Custom categories** — create your own, long-press to delete them
 
-## Statistics Screen
+### Statistics Screen
 
-- Interactive pie chart with income shown as a remaining grey slice
+![Statistics Screen](images/statistics1.png)
+
+- Interactive pie chart with income & expenses
 - Tap any slice to see the amount and percentage in the centre label
-- Month selector with gradient pills (no color clash with categories)
+- Month selector with gradient pills
 - Category breakdown list with progress bars showing % of income
 - Income summary row inside the chart card
 
-## History Screen
+### History Screen
+
+![History Screen](images/HistoryScreen.png)
 
 - All expenses grouped by month in collapsible cards
 - Month header cards are visually distinct (gradient background) from expense rows
@@ -125,10 +150,13 @@ flutter pub get
 flutter run
 ```
 
-[!IMPORTANT]
-**Note**: The Hive adapter files (`expense_model.g.dart`) are already pre-generated, so you **don't need to run `build_runner`**.  
-If you modify the models, run:  
-`flutter pub run build_runner build --delete-conflicting-outputs`
+> [!IMPORTANT]
+> Hive adapter files (`expense_model.g.dart`) are already generated.
+> After modifying models, run:
+>
+> ```bash
+> flutter pub run build_runner build --delete-conflicting-outputs
+> ```
 
 ---
 
@@ -164,19 +192,30 @@ lib/
 │   ├── dashboard_screen.dart    # Home screen
 │   ├── statistics_screen.dart   # Charts & stats
 │   └── history_screen.dart      # Expense history
+├── utils/
+│   └── app_utils.dart           # Common utility functions
 └── widgets/
     ├── balance_card.dart        # Smart balance card
     ├── expense_list_item.dart   # Swipeable expense row
     ├── add_expense_sheet.dart   # Add/Edit bottom sheet
     ├── set_income_sheet.dart    # Monthly income input
-    └── set_goal_sheet.dart      # Monthly budget goal input sheet
+    ├── navigation.dart          # Bottom navigation bar
+    └── common/                  # Shared UI components
+        ├── app_button.dart      # Custom styled button
+        ├── app_input_field.dart # Custom text input
+        ├── app_sheet.dart       # Standard bottom sheet
+        ├── input_label.dart     # Labeled title for inputs
+        └── month_pill.dart      # Selectable month filter
 ```
 
 ---
 
-## Design Decisions & Assumptions
+## Technical & Design Decisions
 
-**Month-switching dashboard** — Rather than a separate "history balance" screen, the dashboard itself becomes context-aware. Tapping the month title switches the entire view — balance card, expense list, Set Income, and budget goal all update to reflect the selected month. This keeps the app to 3 screens while solving the "how do I see last month's balance?" problem elegantly.
+> [!NOTE]
+> **Platform Support**: While the app is developed for both **Android** and **iOS** using Flutter's cross-platform capabilities, it has currently only been tested on **Android**.
+
+**Month-switching dashboard** — Instead of a separate history balance screen, the dashboard is context-aware. Tapping the month title switches the entire view — balance card, expense list, and income all update to reflect the selected month.
 
 **Budget goal vs income** — Income is what you earn. Budget goal is what you *choose* to spend. These are deliberately separate so users can set a goal below their income as a savings discipline tool.
 
