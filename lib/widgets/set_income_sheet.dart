@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
 import 'package:provider/provider.dart';
 import '../providers/expense_provider.dart';
+import '../utils/app_utils.dart';
 
 class SetIncomeSheet extends StatefulWidget {
   /// The month key (e.g. "2026-03") this sheet sets income for.
@@ -77,11 +78,26 @@ class _SetIncomeSheetState extends State<SetIncomeSheet> {
         const SizedBox(height: 20),
         AppButton(
           text: 'Save Income',
-          onPressed: () {
+          onPressed: () async {
             final amount = double.tryParse(_ctrl.text) ?? 0;
             if (amount > 0) {
-              context.read<ExpenseProvider>().setMonthlyIncome(amount);
-              Navigator.pop(context);
+              try {
+                await context.read<ExpenseProvider>().setMonthlyIncome(
+                  amount,
+                  mKey: _mKey,
+                );
+                if (context.mounted) {
+                  Navigator.pop(context);
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  AppUtils.showSnackbar(
+                    context,
+                    'Something went wrong',
+                    isError: true,
+                  );
+                }
+              }
             }
           },
         ),

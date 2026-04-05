@@ -8,6 +8,7 @@ import '../theme/app_theme.dart';
 import '../models/expense_model.dart';
 import '../widgets/add_expense_sheet.dart';
 import '../widgets/set_income_sheet.dart';
+import '../utils/app_utils.dart';
 import 'package:intl/intl.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -38,8 +39,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final expenses = provider.getExpenseForMonth(mKey);
     final date = DateTime.parse('$mKey-01');
     final fullMonth = DateFormat('MMMM').format(date);
-    final monthDisplay =
-        fullMonth.length > 5 ? DateFormat('MMM').format(date) : fullMonth;
+    final monthDisplay = fullMonth.length > 5
+        ? DateFormat('MMM').format(date)
+        : fullMonth;
     final year = DateFormat('yyyy').format(date);
     final monthLabel = '$monthDisplay $year';
     return SafeArea(
@@ -180,11 +182,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             border: Border.all(
                               color: isDark
                                   ? AppTheme.lightSurface.withValues(
-                                    alpha: 0.05,
-                                  )
+                                      alpha: 0.05,
+                                    )
                                   : AppTheme.lightSubText.withValues(
-                                    alpha: 0.1,
-                                  ),
+                                      alpha: 0.1,
+                                    ),
                             ),
                           ),
                           child: const Row(
@@ -242,20 +244,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
             expenses.isEmpty
                 ? SliverToBoxAdapter(child: _EmptyState(isDark: isDark))
                 : SliverList(
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    final exp = expenses[index];
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppTheme.sp20,
-                      ),
-                      child: ExpenseListItem(
-                        expense: exp,
-                        onEdit: () => _showEdit(context, exp),
-                        onDelete: () => provider.deleteExpense(exp.id),
-                      ),
-                    );
-                  }, childCount: expenses.length),
-                ),
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final exp = expenses[index];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppTheme.sp20,
+                        ),
+                        child: ExpenseListItem(
+                          expense: exp,
+                          onEdit: () => _showEdit(context, exp),
+                          onDelete: () async {
+                            try {
+                              await provider.deleteExpense(exp.id);
+                            } catch (e) {
+                              if (context.mounted) {
+                                AppUtils.showSnackbar(
+                                  context,
+                                  'Failed to delete expense',
+                                  isError: true,
+                                );
+                              }
+                            }
+                          },
+                        ),
+                      );
+                    }, childCount: expenses.length),
+                  ),
             const SliverToBoxAdapter(
               child: SizedBox(height: AppTheme.sp60 + AppTheme.sp40),
             ),
@@ -373,17 +387,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     decoration: BoxDecoration(
                       gradient: isSelected
                           ? const LinearGradient(
-                              colors: [
-                                AppTheme.neonPurple,
-                                AppTheme.neonPink,
-                              ],
+                              colors: [AppTheme.neonPurple, AppTheme.neonPink],
                             )
                           : null,
                       color: isSelected
                           ? null
-                          : (isDark
-                                ? AppTheme.darkSurface
-                                : AppTheme.lightBg),
+                          : (isDark ? AppTheme.darkSurface : AppTheme.lightBg),
                       borderRadius: BorderRadius.circular(AppTheme.rad14),
                     ),
                     child: Row(

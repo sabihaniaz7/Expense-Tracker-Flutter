@@ -6,6 +6,7 @@ import '../theme/app_theme.dart';
 import '../widgets/expense_list_item.dart';
 import '../widgets/add_expense_sheet.dart';
 import '../models/expense_model.dart';
+import '../utils/app_utils.dart';
 import 'package:intl/intl.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -308,7 +309,19 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 (e) => ExpenseListItem(
                                   expense: e,
                                   onEdit: () => _showEdit(context, e),
-                                  onDelete: () => provider.deleteExpense(e.id),
+                                  onDelete: () async {
+                                    try {
+                                      await provider.deleteExpense(e.id);
+                                    } catch (ex) {
+                                      if (context.mounted) {
+                                        AppUtils.showSnackbar(
+                                          context,
+                                          'Failed to delete expense',
+                                          isError: true,
+                                        );
+                                      }
+                                    }
+                                  },
                                 ),
                               ),
 
