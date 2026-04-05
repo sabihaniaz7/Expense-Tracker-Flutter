@@ -9,6 +9,7 @@ import '../providers/expense_provider.dart';
 import '../models/expense_model.dart';
 import '../utils/app_utils.dart';
 
+/// Sheet for adding or editing an expense.
 class AddExpenseSheet extends StatefulWidget {
   final Expense? editExpense;
   final String? defaultMonthKey;

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/expense_provider.dart';
 import '../../theme/app_theme.dart';
 
+/// A standard bottom sheet container with glassmorphism or neon effects.
 class AppSheet extends StatelessWidget {
   final List<Widget> children;
   final CrossAxisAlignment crossAxisAlignment;
@@ -22,7 +23,8 @@ class AppSheet extends StatelessWidget {
     final bg = isDark ? AppTheme.darkCard : AppTheme.lightSurface;
 
     return Container(
-      padding: padding ??
+      padding:
+          padding ??
           EdgeInsets.only(
             left: AppTheme.sp24,
             right: AppTheme.sp24,

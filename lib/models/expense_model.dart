@@ -2,6 +2,9 @@ import 'package:hive/hive.dart';
 
 part 'expense_model.g.dart';
 
+/// Data models for persistable Expense and Monthly Income entries.
+/// These models use Hive for storage and code generation for adapters.
+/// Represents a single financial transaction (expense or income).
 @HiveType(typeId: 0)
 class Expense extends HiveObject {
   @HiveField(0)
@@ -36,6 +39,8 @@ class Expense extends HiveObject {
   });
 }
 
+/// Represents fixed monthly income for a specific month.
+/// [monthKey] is formatted as "YYYY-MM".
 @HiveType(typeId: 1)
 class MonthlyIncome extends HiveObject {
   @HiveField(0)

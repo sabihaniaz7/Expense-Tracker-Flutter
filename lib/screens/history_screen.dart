@@ -9,6 +9,8 @@ import '../models/expense_model.dart';
 import '../utils/app_utils.dart';
 import 'package:intl/intl.dart';
 
+/// History view displaying a full chronological list of all transactions.
+/// Provides filtering and grouping by date.
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
 

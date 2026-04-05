@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+/// Statistics view offering graphical analysis of spending habits.
+/// Breaks down expenses by category and month.
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
 

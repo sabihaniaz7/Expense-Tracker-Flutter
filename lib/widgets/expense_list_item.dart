@@ -3,6 +3,7 @@ import 'package:expense_tracker/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+/// Represents a single row in an expense list, with edit/delete actions.
 class ExpenseListItem extends StatelessWidget {
   final Expense expense;
   final VoidCallback onEdit;

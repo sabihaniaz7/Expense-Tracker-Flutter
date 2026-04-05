@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import '../providers/expense_provider.dart';
 import '../utils/app_utils.dart';
 
+/// A bottom sheet for setting or updating the monthly income for the current month.
 class SetIncomeSheet extends StatefulWidget {
   /// The month key (e.g. "2026-03") this sheet sets income for.
   /// Defaults to current month if null

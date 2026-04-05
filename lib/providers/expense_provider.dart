@@ -7,6 +7,10 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../models/expense_model.dart';
 import 'package:intl/intl.dart';
 
+/// Manages the application's state, data persistence, and business logic.
+/// Central state management for the Expense Tracker.
+/// Handles database operations, UI state (theme, selected month),
+/// and financial calculations.
 class ExpenseProvider extends ChangeNotifier {
   late Box<Expense> _expenseBox;
   late Box<MonthlyIncome> _incomeBox;
@@ -38,6 +42,7 @@ class ExpenseProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Initializes the Hive boxes and loads user preferences.
   Future<void> init() async {
     try {
       _expenseBox = await Hive.openBox<Expense>('expenses');
@@ -54,6 +59,8 @@ class ExpenseProvider extends ChangeNotifier {
   String get currentMonthKey => monthKey(DateTime.now());
 
   // Get all Expenses for a specific month
+  /// Retrieves all expenses for a given [mKey] (format: "YYYY-MM").
+  /// Returns a list sorted by date descending.
   List<Expense> getExpenseForMonth(String mKey) {
     return _expenseBox.values
         .where((e) => !e.isIncome && monthKey(e.date) == mKey)
@@ -106,6 +113,7 @@ class ExpenseProvider extends ChangeNotifier {
   }
 
   // Category breakdown for each month
+  /// Calculates the total expense amount per category for a given month.
   Map<String, double> getCategoryBreakdown(String mKey) {
     final expenses = getExpenseForMonth(mKey);
     final Map<String, double> breakdown = {};
@@ -131,6 +139,7 @@ class ExpenseProvider extends ChangeNotifier {
   }
 
   // Add Expense
+  /// Adds a new expense to the database.
   Future<void> addExpense({
     required String title,
     required double amount,
@@ -156,6 +165,7 @@ class ExpenseProvider extends ChangeNotifier {
   }
 
   // Edit Expense
+  /// Updates an existing expense in the database.
   Future<void> editExpense({
     required String id,
     required String title,
@@ -191,6 +201,7 @@ class ExpenseProvider extends ChangeNotifier {
   }
 
   // set monthly Income
+  /// Sets or updates the monthly income for a specific [mKey].
   Future<void> setMonthlyIncome(double amount, {String? mKey}) async {
     try {
       final key = mKey ?? currentMonthKey;
@@ -232,6 +243,7 @@ class ExpenseProvider extends ChangeNotifier {
   }
 
   // Add Custom Category
+  /// Persists a new custom category name.
   Future<void> addCustomCategory(String name) async {
     if (!_customCategories.contains(name)) {
       _customCategories.add(name);
@@ -248,6 +260,7 @@ class ExpenseProvider extends ChangeNotifier {
 
   // ── Budget Goal ─────────────────────────────────────────────────────────
   // Stored per month key in SharedPreferences: "goal_2026-04" = "800.0"
+  /// Retrieves the saved budget goal for a given month.
   Future<double?> getGoalForMonth(String mKey) async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString('goal_$mKey');

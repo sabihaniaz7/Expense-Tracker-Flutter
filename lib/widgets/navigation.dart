@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+/// Custom bottom navigation bar with integrated FAB for adding expenses.
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
 
