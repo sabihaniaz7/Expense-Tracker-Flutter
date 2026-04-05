@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 
+/// A custom styled button that adheres to the application's design system.
 class AppButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;

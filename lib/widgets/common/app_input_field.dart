@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 
+/// A custom styled text input field with consistent theme integration.
 class AppInputField extends StatelessWidget {
   final TextEditingController controller;
   final String hint;

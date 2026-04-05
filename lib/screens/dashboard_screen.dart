@@ -11,6 +11,8 @@ import '../widgets/set_income_sheet.dart';
 import '../utils/app_utils.dart';
 import 'package:intl/intl.dart';
 
+/// Dashboard view providing a summary of finances for the selected month.
+/// Displays balance, expense charts, and recent activity.
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 

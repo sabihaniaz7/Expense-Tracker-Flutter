@@ -7,8 +7,12 @@ import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:expense_tracker/models/expense_model.dart';
 
+/// Main entry point for the Expense Tracker application.
+/// Initializes Hive database, registers adapters, handles initial provider setup,
+/// and starts the app.
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Set status bar to transparent
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
   );
@@ -31,6 +35,8 @@ void main() async {
   );
 }
 
+/// The root widget of the application.
+/// Configures theme, routes, and overall application state.
 class ExpenseTrackerApp extends StatelessWidget {
   const ExpenseTrackerApp({super.key});
 

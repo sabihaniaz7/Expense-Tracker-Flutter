@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/expense_provider.dart';
 import 'package:intl/intl.dart';
 
+/// Dashboard component showing current balance, income vs expenses, and budget progress.
 class BalanceCard extends StatelessWidget {
   /// The month this card displays. Defaults to current month if null.
   final String? monthKey;

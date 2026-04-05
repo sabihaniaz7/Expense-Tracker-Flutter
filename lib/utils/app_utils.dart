@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
+/// Common utility functions and formatting helpers for the application.
+
+/// Static class providing formatting and helper methods.
 class AppUtils {
   static void showSnackbar(BuildContext context, String message, {bool isError = false}) {
     final scaffoldMessenger = ScaffoldMessenger.of(context);

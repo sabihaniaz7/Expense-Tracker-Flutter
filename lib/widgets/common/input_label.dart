@@ -1,15 +1,12 @@
 import 'package:expense_tracker/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
+/// A labeled title for form inputs, consistent with the design system.
 class InputLabel extends StatelessWidget {
   final String label;
   final Color color;
 
-  const InputLabel({
-    super.key,
-    required this.label,
-    required this.color,
-  });
+  const InputLabel({super.key, required this.label, required this.color});
 
   @override
   Widget build(BuildContext context) {

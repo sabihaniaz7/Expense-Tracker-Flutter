@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 
 const String _font = 'Syne';
 
+/// Helper to create a [TextStyle] with the application's default font.
 TextStyle _ts({
   required Color color,
   required double size,
-  required FontWeight weight,
+  FontWeight weight = FontWeight.normal,
 }) => TextStyle(color: color, fontSize: size, fontWeight: weight);
 
+/// Design system and theme configuration for the Expense Tracker.
+/// Defines color palettes, text styles, and specific component themes for light and dark modes.
 class AppTheme {
   // Dark Neon Palette
   static const Color darkBg = Color(0xFF17181F);

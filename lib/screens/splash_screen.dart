@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import '../providers/expense_provider.dart';
 import '../utils/app_utils.dart';
 
+/// Splash screen shown during app initialization.
+/// Handles initial database check and transitions to Dashboard.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 

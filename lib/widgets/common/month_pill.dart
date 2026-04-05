@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 
+/// A selectable pill widget for month-based filtering in the dashboard.
 class MonthPill extends StatelessWidget {
   final String label;
 
-  const MonthPill({
-    super.key,
-    required this.label,
-  });
+  const MonthPill({super.key, required this.label});
 
   @override
   Widget build(BuildContext context) {
