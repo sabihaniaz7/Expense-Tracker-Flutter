@@ -108,6 +108,7 @@ class AppTheme {
     Color(0xFFFFD166), // Yellow  – Education
     Color(0xFF5F27CD), // D.Purple– Travel
     Color(0xFF00D2D3), // Cyan    – Others
+    Color(0xFFFFAB91), // Peach   - Custom
   ];
 
   // -- DARK THEME
@@ -216,7 +217,7 @@ class AppCategories {
   static String getEmoji(String categoryName) {
     final category = categories.firstWhere(
       (c) => c['name'] == categoryName,
-      orElse: () => {'icon': '📦', 'colorIndex': 8},
+      orElse: () => {'icon': '✨', 'colorIndex': 9},
     );
     return category['icon'];
   }
@@ -224,7 +225,7 @@ class AppCategories {
   static Color getColor(String categoryName) {
     final category = categories.firstWhere(
       (c) => c['name'] == categoryName,
-      orElse: () => {'icon': '📦', 'colorIndex': 8},
+      orElse: () => {'icon': '✨', 'colorIndex': 9},
     );
     return AppTheme.categoryColors[category['colorIndex'] as int];
   }
