@@ -212,7 +212,7 @@ class AppCategories {
     {'name': 'Health', 'icon': '🏥', 'colorIndex': 5},
     {'name': 'Education', 'icon': '📚', 'colorIndex': 6},
     {'name': 'Travel', 'icon': '🌍', 'colorIndex': 7},
-    {'name': 'Others', 'icon': '✨', 'colorIndex': 8},
+    {'name': 'Others', 'icon': '❔', 'colorIndex': 8},
   ];
   static String getEmoji(String categoryName) {
     final category = categories.firstWhere(
