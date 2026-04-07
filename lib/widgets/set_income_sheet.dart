@@ -38,6 +38,12 @@ class _SetIncomeSheetState extends State<SetIncomeSheet> {
   }
 
   @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final isDark = context.watch<ExpenseProvider>().isDarkMode;
     final textColor = isDark ? AppTheme.lightText : const Color(0xFF1A1A2E);

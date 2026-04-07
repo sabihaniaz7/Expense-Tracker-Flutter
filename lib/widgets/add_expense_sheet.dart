@@ -54,6 +54,15 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
   }
 
   @override
+  void dispose() {
+    _titleCtrl.dispose();
+    _amountCtrl.dispose();
+    _noteCtrl.dispose();
+    _customCatCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final provider = context.watch<ExpenseProvider>();
     final isDark = provider.isDarkMode;
