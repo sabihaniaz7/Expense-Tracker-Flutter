@@ -22,6 +22,7 @@ class SetIncomeSheet extends StatefulWidget {
 
 class _SetIncomeSheetState extends State<SetIncomeSheet> {
   final _ctrl = TextEditingController();
+  bool _hasExistingIncome = false;
   String get _mKey =>
       widget.monthKey ?? context.read<ExpenseProvider>().currentMonthKey;
 
@@ -35,6 +36,7 @@ class _SetIncomeSheetState extends State<SetIncomeSheet> {
     super.initState();
     final income = context.read<ExpenseProvider>().getIncomeForMonth(_mKey);
     if (income > 0) _ctrl.text = income.toStringAsFixed(0);
+    _hasExistingIncome = income > 0;
   }
 
   @override
@@ -79,7 +81,7 @@ class _SetIncomeSheetState extends State<SetIncomeSheet> {
           autofocus: true,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           fontSize: 28,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w600,
           prefixText: '\$  ',
         ),
         const SizedBox(height: 20),
@@ -108,6 +110,82 @@ class _SetIncomeSheetState extends State<SetIncomeSheet> {
             }
           },
         ),
+        // // Remove income — only shown if income already set
+        if (_hasExistingIncome) ...[
+          const SizedBox(height: AppTheme.sp12),
+          Center(
+            child: GestureDetector(
+              onTap: () async {
+                final isDark = context.read<ExpenseProvider>().isDarkMode;
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    backgroundColor: isDark ? AppTheme.darkCard : Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppTheme.rad20),
+                    ),
+                    title: Text(
+                      'Remove Income',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 18,
+                        color: isDark
+                            ? AppTheme.lightText
+                            : AppTheme.lightPrimaryText,
+                      ),
+                    ),
+                    content: Text(
+                      'Income for "$_monthLabel" will be cleared. '
+                      'This will reset your balance calculation.',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: isDark ? AppTheme.subText : Colors.grey[600],
+                      ),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, false),
+                        child: Text(
+                          'Cancel',
+                          style: TextStyle(
+                            color: isDark ? AppTheme.subText : Colors.grey[500],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, true),
+                        child: const Text(
+                          'Remove',
+                          style: TextStyle(
+                            color: AppTheme.dangerRed,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+                if (confirmed == true && context.mounted) {
+                  await context.read<ExpenseProvider>().removeMonthlyIncome(
+                    mKey: _mKey,
+                  );
+                  if (context.mounted) Navigator.pop(context);
+                }
+              },
+              child: Text(
+                'Remove Income',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: AppTheme.dangerRed.withValues(alpha: 0.8),
+                  fontWeight: FontWeight.w500,
+                  decoration: TextDecoration.underline,
+                  decorationColor: AppTheme.dangerRed.withValues(alpha: 0.5),
+                ),
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }
