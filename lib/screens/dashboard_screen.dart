@@ -61,39 +61,60 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 onTap: () => _pickMonth(context, provider),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: AppTheme.sp10,
-                    vertical: AppTheme.sp6,
+                    horizontal: AppTheme.sp14,
+                    vertical: AppTheme.sp8,
                   ),
                   decoration: BoxDecoration(
-                    color: AppTheme.neonPurple,
+                    color: AppTheme.neonPurple.withValues(
+                      alpha: isDark ? 0.12 : 0.06,
+                    ),
                     borderRadius: BorderRadius.circular(AppTheme.rad20),
                     border: Border.all(
-                      color: isDark
-                          ? AppTheme.lightSurface.withValues(alpha: 0.12)
-                          : Colors.black.withValues(alpha: 0.08),
-                      width: 1,
+                      color: AppTheme.neonPurple.withValues(
+                        alpha: isDark ? 0.5 : 0.3,
+                      ),
+                      width: 1.2,
                     ),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        monthLabel,
-                        style: TextStyle(
-                          fontSize: AppTheme.fs20,
-                          fontWeight: FontWeight.w500,
-                          color: textColor,
+                      const SizedBox(width: AppTheme.sp8),
+                      RichText(
+                        text: TextSpan(
+                          style: TextStyle(
+                            fontFamily: 'Syne',
+                            fontSize: AppTheme.fs16,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.lightText,
+                          ),
+                          children: [
+                            TextSpan(
+                              text: monthLabel.split(' ')[0],
+                              style: TextStyle(
+                                color: !isDark
+                                    ? AppTheme.darkSurface.withValues(
+                                        alpha: 0.8,
+                                      )
+                                    : AppTheme.lightText,
+                              ),
+                            ),
+                            TextSpan(
+                              text: ' ${monthLabel.split(' ')[1]}',
+                              style: TextStyle(
+                                fontSize: AppTheme.fs13,
+                                fontWeight: FontWeight.w500,
+                                color: AppTheme.subText,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-
-                      const SizedBox(width: AppTheme.sp4 / 2),
-                      // DropDown arrow
+                      const SizedBox(width: AppTheme.sp4),
                       Icon(
-                        Icons.arrow_drop_down_rounded,
-                        size: AppTheme.sp20,
-                        color: isDark
-                            ? AppTheme.lightSurface.withValues(alpha: 0.54)
-                            : Colors.black.withValues(alpha: 0.38),
+                        Icons.keyboard_arrow_down_rounded,
+                        size: AppTheme.sp18,
+                        color: AppTheme.subText,
                       ),
                     ],
                   ),
@@ -223,7 +244,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Recent Expenses',
+                      'All Expenses',
                       style: TextStyle(
                         fontSize: AppTheme.fs18,
                         fontWeight: FontWeight.w500,
