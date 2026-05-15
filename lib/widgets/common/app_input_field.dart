@@ -13,6 +13,9 @@ class AppInputField extends StatelessWidget {
   final FontWeight fontWeight;
   final String? Function(String?)? validator;
   final bool autofocus;
+  final TextAlign textAlign;
+  final Function(String)? onChanged;
+  final int? maxLength;
 
   const AppInputField({
     super.key,
@@ -26,6 +29,9 @@ class AppInputField extends StatelessWidget {
     this.fontWeight = FontWeight.w500,
     this.validator,
     this.autofocus = false,
+    this.textAlign = TextAlign.start,
+    this.onChanged,
+    this.maxLength,
   });
 
   @override
@@ -35,6 +41,9 @@ class AppInputField extends StatelessWidget {
       keyboardType: keyboardType,
       validator: validator,
       autofocus: autofocus,
+      textAlign: textAlign,
+      onChanged: onChanged,
+      maxLength: maxLength,
       style: TextStyle(
         color: textColor,
         fontSize: fontSize,
@@ -54,6 +63,7 @@ class AppInputField extends StatelessWidget {
         ),
         filled: true,
         fillColor: isDark ? AppTheme.darkSurface : AppTheme.lightBg,
+        counterText: "",
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppTheme.rad14),
           borderSide: BorderSide.none,

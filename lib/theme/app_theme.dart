@@ -106,9 +106,18 @@ class AppTheme {
     Color(0xFF54A0FF), // Blue    – Bills
     Color(0xFFFF6B6B), // Red     – Health
     Color(0xFFFFD166), // Yellow  – Education
-    Color(0xFF5F27CD), // D.Purple– Travel
-    Color(0xFF00D2D3), // Cyan    – Others
-    Color(0xFFFFAB91), // Peach   - Custom
+    Color(0xFFFFAB91), // Peach - Travel
+  ];
+
+  // Dedicated palette for Custom Categories (different from defaults)
+  static const List<Color> customCategoryColors = [
+    Color(0xFFB1A7F0), // Soft Lavender
+    Color(0xFF96E6B3), // Soft Mint
+    Color(0xFF8AD3E6), // Soft Sky
+    Color(0xFFF5A3B7), // Soft Rose
+    Color(0xFFF7D972), // Soft Gold
+    Color(0xFF82E3D4), // Soft Aqua
+    Color(0xFFD0A2F7), // Soft Lilac
   ];
 
   // -- DARK THEME
@@ -199,34 +208,4 @@ class AppTheme {
       iconTheme: IconThemeData(color: lightPrimaryText),
     ),
   );
-}
-
-// Categories Data
-class AppCategories {
-  static const List<Map<String, dynamic>> categories = [
-    {'name': 'Food & Drink', 'icon': '🍔', 'colorIndex': 0},
-    {'name': 'Entertainment', 'icon': '🍿', 'colorIndex': 1},
-    {'name': 'Transport', 'icon': '🚕', 'colorIndex': 2},
-    {'name': 'Shopping', 'icon': '🛒', 'colorIndex': 3},
-    {'name': 'Bills', 'icon': '🧾', 'colorIndex': 4},
-    {'name': 'Health', 'icon': '🏥', 'colorIndex': 5},
-    {'name': 'Education', 'icon': '📚', 'colorIndex': 6},
-    {'name': 'Travel', 'icon': '🌍', 'colorIndex': 7},
-    {'name': 'Others', 'icon': '❔', 'colorIndex': 8},
-  ];
-  static String getEmoji(String categoryName) {
-    final category = categories.firstWhere(
-      (c) => c['name'] == categoryName,
-      orElse: () => {'icon': '✨', 'colorIndex': 9},
-    );
-    return category['icon'];
-  }
-
-  static Color getColor(String categoryName) {
-    final category = categories.firstWhere(
-      (c) => c['name'] == categoryName,
-      orElse: () => {'icon': '✨', 'colorIndex': 9},
-    );
-    return AppTheme.categoryColors[category['colorIndex'] as int];
-  }
 }
