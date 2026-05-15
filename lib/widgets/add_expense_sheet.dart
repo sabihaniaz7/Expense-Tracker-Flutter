@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../providers/expense_provider.dart';
 import '../models/expense_model.dart';
 import '../utils/app_utils.dart';
+import '../utils/app_categories.dart';
 
 /// Sheet for adding or editing an expense.
 class AddExpenseSheet extends StatefulWidget {
@@ -28,6 +29,8 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
   late DateTime _selectedDate;
   bool _addingCustom = false;
   final _customCatCtrl = TextEditingController();
+  String _selectedCustomEmoji = '✨';
+  List<String> _emojiSuggestions = AppCategories.getSuggestions('');
 
   @override
   void initState() {
@@ -173,7 +176,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                               ),
                               SizedBox(width: 4),
                               Text(
-                                'Custom',
+                                'Others',
                                 style: TextStyle(
                                   color: AppTheme.neonPurple,
                                   fontSize: 13,
@@ -218,7 +221,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              cat,
+                              AppCategories.stripEmoji(cat),
                               style: TextStyle(
                                 color: isSelected ? color : subColor,
                                 fontWeight: FontWeight.w500,
@@ -235,57 +238,115 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
               // Custom Category Input
               if (_addingCustom) ...{
                 const SizedBox(height: 12),
-                Row(
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: AppInputField(
-                        controller: _customCatCtrl,
-                        hint: 'Category Name',
-                        isDark: isDark,
-                        textColor: textColor,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    GestureDetector(
-                      onTap: () async {
-                        if (_customCatCtrl.text.trim().isNotEmpty) {
-                          try {
-                            await provider.addCustomCategory(
-                              _customCatCtrl.text.trim(),
-                            );
-                            if (!context.mounted) return;
-                            setState(() {
-                              _selectedCategory = _customCatCtrl.text.trim();
-                              _addingCustom = false;
-                            });
-                            _customCatCtrl.clear();
-                          } catch (e) {
-                            if (context.mounted) {
-                              AppUtils.showSnackbar(
-                                context,
-                                'Failed to add category',
-                                isError: true,
-                              );
-                            }
-                          }
-                        }
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppTheme.neonPurple,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Text(
-                          'Add',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: AppInputField(
+                            controller: _customCatCtrl,
+                            hint: 'Category Name',
+                            isDark: isDark,
+                            textColor: textColor,
+                            onChanged: (val) {
+                              setState(() {
+                                _emojiSuggestions =
+                                    AppCategories.getSuggestions(val);
+                                // If the current selection isn't in suggestions,
+                                // we don't necessarily change it unless we want to auto-pick
+                              });
+                            },
                           ),
                         ),
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: () async {
+                            final name = _customCatCtrl.text.trim();
+                            if (name.isNotEmpty) {
+                              try {
+                                final fullCategory =
+                                    '$_selectedCustomEmoji $name';
+                                await provider.addCustomCategory(fullCategory);
+                                if (!context.mounted) return;
+                                setState(() {
+                                  _selectedCategory = fullCategory;
+                                  _addingCustom = false;
+                                  _customCatCtrl.clear();
+                                  _selectedCustomEmoji = '✨';
+                                });
+                              } catch (e) {
+                                if (context.mounted) {
+                                  AppUtils.showSnackbar(
+                                    context,
+                                    'Failed to add category',
+                                    isError: true,
+                                  );
+                                }
+                              }
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppTheme.neonPurple,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Text(
+                              'Add',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    // Emoji Suggestions
+                    SizedBox(
+                      height: 40,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _emojiSuggestions.length,
+                        itemBuilder: (context, i) {
+                          final emoji = _emojiSuggestions[i];
+                          final isSelected = _selectedCustomEmoji == emoji;
+                          return GestureDetector(
+                            onTap: () =>
+                                setState(() => _selectedCustomEmoji = emoji),
+                            child: Container(
+                              width: 40,
+                              margin: const EdgeInsets.only(right: 8),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? AppTheme.neonPurple.withValues(alpha: 0.2)
+                                    : (isDark
+                                          ? Colors.white.withValues(alpha: 0.05)
+                                          : Colors.grey.withValues(
+                                              alpha: 0.05,
+                                            )),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: isSelected
+                                      ? AppTheme.neonPurple
+                                      : Colors.transparent,
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  emoji,
+                                  style: const TextStyle(fontSize: 18),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ],

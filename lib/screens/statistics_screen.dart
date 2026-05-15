@@ -1,5 +1,6 @@
 import 'package:expense_tracker/providers/expense_provider.dart';
 import 'package:expense_tracker/theme/app_theme.dart';
+import '../utils/app_categories.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -66,7 +67,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     if (_touchedIndex >= 0 && _touchedIndex < sortedBreakdown.length) {
       final cat = sortedBreakdown[_touchedIndex];
       centerTop = fmt.format(cat.value);
-      centerBottom = cat.key;
+      centerBottom = AppCategories.stripEmoji(cat.key);
     } else if (_touchedIndex == sortedBreakdown.length && income > 0) {
       centerTop = fmt.format(remaining);
       centerBottom = 'remaining';
@@ -453,7 +454,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      entry.key,
+                                      AppCategories.stripEmoji(entry.key),
                                       style: TextStyle(
                                         fontWeight: FontWeight.w500,
                                         color: textColor,

@@ -1,5 +1,6 @@
 import 'package:expense_tracker/models/expense_model.dart';
 import 'package:expense_tracker/theme/app_theme.dart';
+import 'package:expense_tracker/utils/app_categories.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -160,7 +161,21 @@ class ExpenseListItem extends StatelessWidget {
                     ),
                     const SizedBox(height: 1),
                     Text(
-                      expense.category,
+                      expense.category.startsWith(
+                                AppCategories.getEmoji(expense.category),
+                              ) &&
+                              expense.category.length >
+                                  AppCategories.getEmoji(
+                                    expense.category,
+                                  ).length
+                          ? expense.category
+                                .substring(
+                                  AppCategories.getEmoji(
+                                    expense.category,
+                                  ).length,
+                                )
+                                .trim()
+                          : expense.category,
                       style: TextStyle(
                         color: isDark ? AppTheme.subText : Colors.grey[500],
                         fontSize: AppTheme.fs12,
